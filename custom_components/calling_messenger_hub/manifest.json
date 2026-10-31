@@ -4,10 +4,10 @@
   "codeowners": ["@trankhanhduy2929-beep"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/trankhanhduy2929-beep/telegramvoip_homeassistant",
+  "documentation": "https://github.com/trankhanhduy2929-beep/calling_messenger_hub",
   "homeassistant": "2024.12.0",
   "integration_type": "service",
   "iot_class": "local_polling",
   "requirements": [],
-  "version": "2.0.0"
+  "version": "2.0.1"
 }

@@ -18,7 +18,7 @@ Integration này **không chứa phần đăng nhập Telegram**. Cần cài add
 
 ## Nâng cấp từ Telegram VoIP Notifier
 
-Bản `2.0.0` đổi tên integration và domain:
+Bản `2.0.1` đổi tên integration và domain:
 
 - Integration domain: `telegram_voip` → `calling_messenger_hub`.
 - Service prefix: `telegram_voip.*` → `calling_messenger_hub.*`.
@@ -33,7 +33,7 @@ Gỡ integration cũ, cài bản mới, rồi cập nhật automation sang servi
 ### HACS
 
 1. HACS > Integrations > Custom repositories.
-2. Thêm `https://github.com/trankhanhduy2929-beep/telegramvoip_homeassistant`,
+2. Thêm `https://github.com/trankhanhduy2929-beep/calling_messenger_hub`,
    category **Integration**.
 3. Cài **Calling Messenger Hub**.
 4. Restart Home Assistant.
