@@ -40,6 +40,6 @@ class TelegramVoipCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except TelegramVoipAuthError as err:
             raise ConfigEntryAuthFailed(str(err)) from err
         except TelegramVoipConnectionError as err:
-            raise UpdateFailed(f"Cannot reach Telegram VoIP add-on: {err}") from err
+            raise UpdateFailed(f"Cannot reach Calling Messenger Hub add-on: {err}") from err
         except TelegramVoipApiError as err:
             raise UpdateFailed(str(err)) from err

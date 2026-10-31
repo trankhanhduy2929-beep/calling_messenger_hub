@@ -1,11 +1,11 @@
-DOMAIN = "telegram_voip"
+DOMAIN = "calling_messenger_hub"
 PLATFORMS = ["sensor"]
 
 CONF_URL = "url"
 CONF_TOKEN = "token"
 CONF_SCAN_INTERVAL = "scan_interval"
 
-DEFAULT_URL = "http://local-telegram-voip:3332"
+DEFAULT_URL = "http://local-calling-messenger-hub:3332"
 DEFAULT_SCAN_INTERVAL = 30
 
 SERVICE_SEND_MESSAGE = "send_message"

@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Connect Telegram VoIP",
+        "title": "Connect Calling Messenger Hub",
         "description": "Enter the add-on URL and API token. Copy the token from the add-on at Settings → API token for custom integration.",
         "data": {
           "url": "Add-on URL",
@@ -10,7 +10,7 @@
           "scan_interval": "Update interval (seconds)"
         },
         "data_description": {
-          "url": "Example: http://local-telegram-voip:3332 for a local add-on. Use the repository hostname for remote installs.",
+          "url": "Example: http://local-calling-messenger-hub:3332 for a local add-on. Use the repository hostname for remote installs.",
           "token": "Bearer token used to call the add-on REST API; copy it from the add-on Settings.",
           "scan_interval": "How often account and call status is refreshed."
         }
@@ -28,7 +28,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Telegram VoIP options",
+        "title": "Calling Messenger Hub options",
         "data": {
           "scan_interval": "Update interval (seconds)"
         }

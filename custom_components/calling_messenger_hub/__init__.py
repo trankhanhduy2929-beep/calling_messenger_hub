@@ -140,17 +140,17 @@ def _get_api(hass: HomeAssistant) -> TelegramVoipApi:
         runtime = getattr(entry, "runtime_data", None)
         if isinstance(runtime, TelegramVoipRuntime):
             return runtime.api
-    raise HomeAssistantError("Telegram VoIP add-on is not configured or not loaded")
+    raise HomeAssistantError("Calling Messenger Hub add-on is not configured or not loaded")
 
 
 def _raise_api_error(err: Exception) -> NoReturn:
     if isinstance(err, TelegramVoipAuthError):
         raise HomeAssistantError(
-            "Telegram VoIP add-on rejected the API token"
+            "Calling Messenger Hub add-on rejected the API token"
         ) from err
     if isinstance(err, TelegramVoipConnectionError):
         raise HomeAssistantError(
-            f"Cannot reach the Telegram VoIP add-on: {err}"
+            f"Cannot reach the Calling Messenger Hub add-on: {err}"
         ) from err
     raise HomeAssistantError(str(err)) from err
 

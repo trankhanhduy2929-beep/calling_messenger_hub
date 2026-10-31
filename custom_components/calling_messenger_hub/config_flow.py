@@ -76,7 +76,7 @@ class TelegramVoipConfigFlow(ConfigFlow, domain=DOMAIN):
                     await self.async_set_unique_id(url)
                     self._abort_if_unique_id_configured()
                     return self.async_create_entry(
-                        title="Telegram VoIP",
+                        title="Calling Messenger Hub",
                         data={CONF_URL: url, CONF_TOKEN: token},
                         options={
                             CONF_SCAN_INTERVAL: user_input.get(

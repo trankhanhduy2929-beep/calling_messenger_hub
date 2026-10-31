@@ -39,9 +39,9 @@ class TelegramVoipSensor(CoordinatorEntity[TelegramVoipCoordinator], SensorEntit
         self._entry = entry
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
-            name="Telegram VoIP",
+            name="Calling Messenger Hub",
             manufacturer="apk-lab",
-            model="Telegram add-on bridge",
+            model="Calling & messaging hub",
             configuration_url=coordinator.api.base_url,
         )
 

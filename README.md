@@ -1,6 +1,6 @@
-# Telegram VoIP Notifier for Home Assistant
+# Calling Messenger Hub for Home Assistant
 
-Custom integration gọi add-on **Telegram VoIP Notifier** qua REST API để:
+Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản hiện tại dùng Telegram làm provider đầu tiên:
 
 - gửi tin nhắn Telegram từ nhiều tài khoản;
 - gửi ảnh từ URL hoặc dữ liệu ảnh kèm chú thích;
@@ -10,11 +10,23 @@ Custom integration gọi add-on **Telegram VoIP Notifier** qua REST API để:
 - theo dõi số tài khoản online và số cuộc gọi đang hoạt động.
 
 Integration này **không chứa phần đăng nhập Telegram**. Cần cài add-on
-`telegram_voip` trước, sau đó nhập URL và API token của add-on.
+`calling_messenger_hub` trước, sau đó nhập URL và API token của add-on.
 
 > Chưa kiểm thử với tài khoản Telegram thật hoặc Home Assistant runtime thật.
 > Gọi tự động có thể vi phạm Telegram Terms of Service; chỉ dùng tài khoản phụ
 > hoặc tài khoản bạn sở hữu.
+
+## Nâng cấp từ Telegram VoIP Notifier
+
+Bản `2.0.0` đổi tên integration và domain:
+
+- Integration domain: `telegram_voip` → `calling_messenger_hub`.
+- Service prefix: `telegram_voip.*` → `calling_messenger_hub.*`.
+- Sensor entity ID: `sensor.telegram_voip_*` → `sensor.calling_messenger_hub_*`.
+- Add-on slug: `telegram_voip` → `calling_messenger_hub`.
+- Dữ liệu Telegram trong `/data` của add-on giữ nguyên.
+
+Gỡ integration cũ, cài bản mới, rồi cập nhật automation sang service prefix mới.
 
 ## Cài đặt
 
@@ -23,21 +35,21 @@ Integration này **không chứa phần đăng nhập Telegram**. Cần cài add
 1. HACS > Integrations > Custom repositories.
 2. Thêm `https://github.com/trankhanhduy2929-beep/telegramvoip_homeassistant`,
    category **Integration**.
-3. Cài **Telegram VoIP Notifier**.
+3. Cài **Calling Messenger Hub**.
 4. Restart Home Assistant.
-5. Settings > Devices & services > Add integration > **Telegram VoIP Notifier**.
-6. Nhập URL add-on, ví dụ `http://local-telegram-voip:3332`, và API token.
+5. Settings > Devices & services > Add integration > **Calling Messenger Hub**.
+6. Nhập URL add-on, ví dụ `http://local-calling-messenger-hub:3332`, và API token.
 
 ### Thủ công
 
-Copy thư mục `custom_components/telegram_voip` vào
-`/config/custom_components/telegram_voip`, restart Home Assistant, rồi thêm
+Copy thư mục `custom_components/calling_messenger_hub` vào
+`/config/custom_components/calling_messenger_hub`, restart Home Assistant, rồi thêm
 integration.
 
 ## Cấu hình
 
 - **Add-on URL**: URL nội bộ của add-on, thường là
-  `http://local-telegram-voip:3332`. Không thêm dấu `/` ở cuối.
+  `http://local-calling-messenger-hub:3332`. Không thêm dấu `/` ở cuối.
 - **API token**: sao chép trong add-on tại **Cài đặt → API token cho custom
   integration**.
 
@@ -47,20 +59,20 @@ Có thể đổi URL/token sau khi cài bằng **Configure**.
 
 `account` nhận ID tài khoản, số điện thoại quốc tế hoặc tên tài khoản trong add-on. Bỏ trống để dùng tài khoản online đầu tiên.
 
-### `telegram_voip.send_message`
+### `calling_messenger_hub.send_message`
 
 ```yaml
-action: telegram_voip.send_message
+action: calling_messenger_hub.send_message
 data:
   account: "+84901234567"
   to: "@username"
   message: "Cảnh báo từ Home Assistant"
 ```
 
-### `telegram_voip.send_tts`
+### `calling_messenger_hub.send_tts`
 
 ```yaml
-action: telegram_voip.send_tts
+action: calling_messenger_hub.send_tts
 data:
   account: "+84901234567"
   to: "@username"
@@ -68,10 +80,10 @@ data:
   voice: "vi-VN-HoaiMyNeural"
 ```
 
-### `telegram_voip.send_photo`
+### `calling_messenger_hub.send_photo`
 
 ```yaml
-action: telegram_voip.send_photo
+action: calling_messenger_hub.send_photo
 data:
   account: "+84901234567"
   to: "@username"
@@ -81,46 +93,47 @@ data:
 
 URL phải truy cập được từ Internet vì Telegram tải ảnh trực tiếp. Với ảnh nội bộ, chọn file trong Web UI.
 
-### `telegram_voip.call`
+### `calling_messenger_hub.call`
 
 ```yaml
-action: telegram_voip.call
+action: calling_messenger_hub.call
 data:
   account: "+84901234567"
   to: "@username"
   message: "Có người lạ trước cửa."
+  ring_timeout: 45
   wait: true
-  wait_seconds: 90
 ```
 
-### `telegram_voip.ring`
+### `calling_messenger_hub.ring`
 
 ```yaml
-action: telegram_voip.ring
+action: calling_messenger_hub.ring
 data:
   account: "+84901234567"
   to: "@username"
-  message: "Cảnh báo động."
-  attempts: 2
-  interval: 15
+  message: "Báo động. Có người ở cửa chính."
+  attempts: 3
+  interval: 10
 ```
 
-### `telegram_voip.hangup`
+### `calling_messenger_hub.hangup`
 
 ```yaml
-action: telegram_voip.hangup
+action: calling_messenger_hub.hangup
 data:
-  account: "+84901234567"
+  call_id: "call-id"
 ```
 
-## Sensors
+Bỏ `call_id` để kết thúc mọi cuộc gọi đang hoạt động.
 
-- `sensor.telegram_voip_accounts_online`
-- `sensor.telegram_voip_active_calls`
+## Sensor
 
-## Yêu cầu
+- `sensor.calling_messenger_hub_accounts_online`
+- `sensor.calling_messenger_hub_active_calls`
 
-- Home Assistant `2024.12.0` trở lên.
-- Add-on Telegram VoIP Notifier đang chạy và truy cập được từ Home Assistant.
-- Tài khoản gửi đã đăng nhập trong add-on.
-- Tài khoản nhận cho phép nhận cuộc gọi từ tài khoản gửi.
+## Ghi chú
+
+- Tài khoản nhận phải bấm nghe máy thì TTS mới phát.
+- P2P call chỉ dùng cho user Telegram, không gọi nhóm.
+- Đây là provider Telegram đầu tiên của hub; dịch vụ khác sẽ được bổ sung sau.
