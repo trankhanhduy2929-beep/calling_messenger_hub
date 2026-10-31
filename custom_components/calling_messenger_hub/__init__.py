@@ -38,7 +38,9 @@ from .const import (
     CONF_TOKEN,
     CONF_URL,
     DEFAULT_SCAN_INTERVAL,
+    DEFAULT_URL,
     DOMAIN,
+    LEGACY_DEFAULT_URL,
     SERVICE_CALL,
     SERVICE_HANGUP,
     SERVICE_RING,
@@ -289,6 +291,15 @@ def _async_register_services(hass: HomeAssistant) -> None:
         supports_response=SupportsResponse.OPTIONAL,
     )
 
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    if entry.version < 2:
+        data = dict(entry.data)
+        if data.get(CONF_URL) == LEGACY_DEFAULT_URL:
+            data[CONF_URL] = DEFAULT_URL
+            _LOGGER.info("Migrating Calling Messenger Hub URL to port 3030")
+        hass.config_entries.async_update_entry(entry, data=data, version=2)
+    return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     api = TelegramVoipApi(

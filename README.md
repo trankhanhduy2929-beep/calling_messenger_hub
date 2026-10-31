@@ -18,6 +18,8 @@ Integration này **không chứa phần đăng nhập Telegram**. Cần cài add
 
 ## Nâng cấp từ Telegram VoIP Notifier
 
+Bản `2.0.2` đổi cổng mặc định của add-on sang `3030`. Nếu config entry cũ dùng cổng `3332`, integration tự cập nhật URL mặc định khi khởi động; URL tùy chỉnh cần sửa tay.
+
 Bản `2.0.1` đổi tên integration và domain:
 
 - Integration domain: `telegram_voip` → `calling_messenger_hub`.
@@ -38,7 +40,7 @@ Gỡ integration cũ, cài bản mới, rồi cập nhật automation sang servi
 3. Cài **Calling Messenger Hub**.
 4. Restart Home Assistant.
 5. Settings > Devices & services > Add integration > **Calling Messenger Hub**.
-6. Nhập URL add-on, ví dụ `http://local-calling-messenger-hub:3332`, và API token.
+6. Nhập URL add-on, ví dụ `http://local-calling-messenger-hub:3030`, và API token.
 
 ### Thủ công
 
@@ -49,7 +51,7 @@ integration.
 ## Cấu hình
 
 - **Add-on URL**: URL nội bộ của add-on, thường là
-  `http://local-calling-messenger-hub:3332`. Không thêm dấu `/` ở cuối.
+  `http://local-calling-messenger-hub:3030`. Không thêm dấu `/` ở cuối.
 - **API token**: sao chép trong add-on tại **Cài đặt → API token cho custom
   integration**.
 
