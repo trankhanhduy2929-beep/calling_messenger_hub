@@ -1,22 +1,23 @@
 # Calling Messenger Hub for Home Assistant
 
-Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản hiện tại dùng Telegram làm provider đầu tiên:
+Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản `2.0.3` hỗ trợ tài khoản Telegram, Discord và Signal:
 
-- gửi tin nhắn Telegram từ nhiều tài khoản;
-- gửi ảnh từ URL hoặc dữ liệu ảnh kèm chú thích;
-- gửi voice message bằng Edge TTS;
-- gọi P2P 1:1 và phát TTS khi người nhận nghe máy;
-- gọi lặp làm chuông báo động;
-- theo dõi số tài khoản online và số cuộc gọi đang hoạt động.
+- gửi tin nhắn, ảnh và voice message bằng Edge TTS qua tài khoản đã thêm trong add-on;
+- gọi P2P 1:1 Telegram và phát TTS khi người nhận nghe máy;
+- gọi lặp làm chuông báo động Telegram;
+- gửi chuông TTS lặp qua tài khoản Discord/Signal;
+- theo dõi số tài khoản online và số cuộc gọi/chuông đang hoạt động.
 
-Integration này **không chứa phần đăng nhập Telegram**. Cần cài add-on
+Integration này **không chứa phần đăng nhập**. Cần cài add-on
 `calling_messenger_hub` trước, sau đó nhập URL và API token của add-on.
 
-> Chưa kiểm thử với tài khoản Telegram thật hoặc Home Assistant runtime thật.
-> Gọi tự động có thể vi phạm Telegram Terms of Service; chỉ dùng tài khoản phụ
-> hoặc tài khoản bạn sở hữu.
+> Chưa kiểm thử với tài khoản Telegram, Discord hoặc Signal thật, hoặc Home
+> Assistant runtime thật. Tự động gọi/nhắn tin có thể vi phạm điều khoản nền
+> tảng; chỉ dùng tài khoản phụ và người nhận đã đồng ý.
 
 ## Nâng cấp từ Telegram VoIP Notifier
+
+Bản `2.0.3` cập nhật mô tả service `ring` cho Discord/Signal; không đổi cấu hình.
 
 Bản `2.0.2` đổi cổng mặc định của add-on sang `3030`. Nếu config entry cũ dùng cổng `3332`, integration tự cập nhật URL mặc định khi khởi động; URL tùy chỉnh cần sửa tay.
 
@@ -59,7 +60,7 @@ Có thể đổi URL/token sau khi cài bằng **Configure**.
 
 ## Services
 
-`account` nhận ID tài khoản, số điện thoại quốc tế hoặc tên tài khoản trong add-on. Bỏ trống để dùng tài khoản online đầu tiên.
+`account` nhận ID tài khoản, số điện thoại quốc tế hoặc tên tài khoản trong add-on. Bỏ trống để dùng tài khoản online đầu tiên. Service `call` chỉ hỗ trợ Telegram; `ring` hỗ trợ cả Discord/Signal.
 
 ### `calling_messenger_hub.send_message`
 
@@ -119,6 +120,8 @@ data:
   interval: 10
 ```
 
+Telegram gọi thoại lặp và phát TTS khi nghe máy. Discord/Signal gửi text tùy chọn một lần rồi gửi voice TTS lặp; không có phát hiện nghe máy, `ring_timeout` bị bỏ qua.
+
 ### `calling_messenger_hub.hangup`
 
 ```yaml
@@ -127,7 +130,7 @@ data:
   call_id: "call-id"
 ```
 
-Bỏ `call_id` để kết thúc mọi cuộc gọi đang hoạt động.
+Bỏ `call_id` để kết thúc mọi cuộc gọi/chuông đang hoạt động.
 
 ## Sensor
 
@@ -136,6 +139,5 @@ Bỏ `call_id` để kết thúc mọi cuộc gọi đang hoạt động.
 
 ## Ghi chú
 
-- Tài khoản nhận phải bấm nghe máy thì TTS mới phát.
-- P2P call chỉ dùng cho user Telegram, không gọi nhóm.
-- Đây là provider Telegram đầu tiên của hub; dịch vụ khác sẽ được bổ sung sau.
+- Với Telegram, tài khoản nhận phải bấm nghe máy thì TTS mới phát; P2P call không gọi nhóm.
+- Với Discord/Signal, `ring` chỉ gửi voice TTS lặp qua tin nhắn, không phải cuộc gọi thoại.
