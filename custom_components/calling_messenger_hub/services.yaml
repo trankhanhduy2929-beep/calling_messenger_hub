@@ -1,10 +1,10 @@
 send_message:
   name: Gửi tin nhắn
-  description: Gửi tin nhắn văn bản qua tài khoản Telegram, tài khoản Discord hoặc Signal đã cấu hình.
+  description: Gửi tin nhắn văn bản qua tài khoản Telegram, Discord, Signal hoặc LINE Official Account đã cấu hình.
   fields:
     to:
       name: Người nhận
-      description: Telegram dùng username, số điện thoại hoặc ID; Discord dùng ID kênh/người dùng, #ten-kenh hoặc @username; Signal dùng số E.164, group.* hoặc username.
+      description: Telegram dùng username, số điện thoại hoặc ID; Discord dùng ID kênh/người dùng, #ten-kenh hoặc @username; Signal dùng số E.164, group.* hoặc username; LINE dùng user/group/room ID (U.../C.../R...).
       required: true
       selector:
         text:
@@ -17,7 +17,7 @@ send_message:
           multiline: true
     account:
       name: Tài khoản gửi
-      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...) hoặc ID Signal (sg_...). Bỏ trống để dùng tài khoản online theo thứ tự Telegram, Discord, Signal.
+      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...) hoặc ID LINE (ln_...). Bỏ trống để dùng tài khoản online theo thứ tự Telegram, Discord, Signal, LINE.
       selector:
         text:
     parse_mode:
@@ -43,7 +43,7 @@ send_message:
 
 send_tts:
   name: Gửi tin nhắn thoại
-  description: Tạo giọng nói từ văn bản và gửi voice message Telegram hoặc file audio Discord/Signal.
+  description: Tạo giọng nói từ văn bản và gửi voice message Telegram hoặc file audio Discord/Signal. LINE không hỗ trợ gửi TTS cục bộ.
   fields:
     to:
       name: Người nhận
@@ -58,7 +58,7 @@ send_tts:
           multiline: true
     account:
       name: Tài khoản gửi
-      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...) hoặc ID Signal (sg_...). Bỏ trống để dùng tài khoản online theo thứ tự Telegram, Discord, Signal.
+      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...) hoặc ID LINE (ln_...). Bỏ trống để dùng tài khoản online theo thứ tự Telegram, Discord, Signal, LINE.
       selector:
         text:
     voice:
@@ -145,7 +145,7 @@ ring:
           multiline: true
     account:
       name: Tài khoản gửi
-      description: ID, số điện thoại hoặc tên tài khoản. Telegram gọi thoại; Discord/Signal gửi voice TTS lặp. Bỏ trống để dùng tài khoản online đầu tiên.
+      description: ID, số điện thoại hoặc tên tài khoản. Telegram gọi thoại; Discord/Signal gửi voice TTS lặp; LINE không hỗ trợ chuông. Bỏ trống để dùng tài khoản online đầu tiên.
       selector:
         text:
     voice:
@@ -203,11 +203,11 @@ hangup:
 
 send_photo:
   name: Gửi ảnh
-  description: Gửi ảnh qua Telegram, Discord hoặc Signal từ URL, dữ liệu ảnh hoặc file trong /data/media kèm chú thích.
+  description: Gửi ảnh qua Telegram, Discord hoặc Signal từ URL, dữ liệu ảnh hoặc file trong /data/media; LINE chỉ nhận URL HTTPS công khai.
   fields:
     to:
       name: Người nhận
-      description: Telegram dùng username, số điện thoại hoặc ID; Discord dùng ID kênh/người dùng, #ten-kenh hoặc @username; Signal dùng số E.164, group.* hoặc username.
+      description: Telegram dùng username, số điện thoại hoặc ID; Discord dùng ID kênh/người dùng, #ten-kenh hoặc @username; Signal dùng số E.164, group.* hoặc username; LINE dùng user/group/room ID (U.../C.../R...).
       required: true
       selector:
         text:
@@ -219,7 +219,7 @@ send_photo:
         text:
     account:
       name: Tài khoản gửi
-      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...) hoặc ID Signal (sg_...). Bỏ trống để dùng tài khoản online theo thứ tự Telegram, Discord, Signal.
+      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...) hoặc ID LINE (ln_...). Bỏ trống để dùng tài khoản online theo thứ tự Telegram, Discord, Signal, LINE.
       selector:
         text:
     caption:

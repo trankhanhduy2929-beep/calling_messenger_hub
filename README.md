@@ -1,21 +1,24 @@
 # Calling Messenger Hub for Home Assistant
 
-Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản `2.0.3` hỗ trợ tài khoản Telegram, Discord và Signal:
+Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản `2.0.4` hỗ trợ tài khoản Telegram, Discord, Signal và LINE Official Account:
 
 - gửi tin nhắn, ảnh và voice message bằng Edge TTS qua tài khoản đã thêm trong add-on;
 - gọi P2P 1:1 Telegram và phát TTS khi người nhận nghe máy;
 - gọi lặp làm chuông báo động Telegram;
 - gửi chuông TTS lặp qua tài khoản Discord/Signal;
+- gửi tin nhắn/ảnh qua LINE Official Account;
 - theo dõi số tài khoản online và số cuộc gọi/chuông đang hoạt động.
 
 Integration này **không chứa phần đăng nhập**. Cần cài add-on
 `calling_messenger_hub` trước, sau đó nhập URL và API token của add-on.
 
-> Chưa kiểm thử với tài khoản Telegram, Discord hoặc Signal thật, hoặc Home
-> Assistant runtime thật. Tự động gọi/nhắn tin có thể vi phạm điều khoản nền
-> tảng; chỉ dùng tài khoản phụ và người nhận đã đồng ý.
+> Chưa kiểm thử với tài khoản Telegram, Discord, Signal hoặc LINE thật, hoặc
+> Home Assistant runtime thật. Tự động gọi/nhắn tin có thể vi phạm điều khoản
+> nền tảng; chỉ dùng tài khoản phụ và người nhận đã đồng ý.
 
 ## Nâng cấp từ Telegram VoIP Notifier
+
+Bản `2.0.4` cập nhật mô tả service cho LINE; không đổi cấu hình.
 
 Bản `2.0.3` cập nhật mô tả service `ring` cho Discord/Signal; không đổi cấu hình.
 
@@ -60,7 +63,7 @@ Có thể đổi URL/token sau khi cài bằng **Configure**.
 
 ## Services
 
-`account` nhận ID tài khoản, số điện thoại quốc tế hoặc tên tài khoản trong add-on. Bỏ trống để dùng tài khoản online đầu tiên. Service `call` chỉ hỗ trợ Telegram; `ring` hỗ trợ cả Discord/Signal.
+`account` nhận ID tài khoản, số điện thoại quốc tế, tên tài khoản hoặc ID LINE (`ln_...`) trong add-on. Bỏ trống để dùng tài khoản online đầu tiên. Service `call` chỉ hỗ trợ Telegram; `ring` hỗ trợ Discord/Signal; LINE chỉ hỗ trợ `send_message` và `send_photo`.
 
 ### `calling_messenger_hub.send_message`
 
@@ -94,7 +97,7 @@ data:
   caption: "Ảnh camera cửa chính."
 ```
 
-URL phải truy cập được từ Internet vì Telegram tải ảnh trực tiếp. Với ảnh nội bộ, chọn file trong Web UI.
+URL phải truy cập được từ Internet vì Telegram tải ảnh trực tiếp. Với ảnh nội bộ, chọn file trong Web UI. LINE chỉ nhận URL HTTPS công khai, không nhận file nội bộ hay data URI.
 
 ### `calling_messenger_hub.call`
 
@@ -141,3 +144,4 @@ Bỏ `call_id` để kết thúc mọi cuộc gọi/chuông đang hoạt động
 
 - Với Telegram, tài khoản nhận phải bấm nghe máy thì TTS mới phát; P2P call không gọi nhóm.
 - Với Discord/Signal, `ring` chỉ gửi voice TTS lặp qua tin nhắn, không phải cuộc gọi thoại.
+- Với LINE, dùng user/group/room ID (`U...`/`C...`/`R...`). LINE không hỗ trợ `send_tts`, `call` hoặc `ring`; ảnh phải là URL HTTPS công khai.
