@@ -1,22 +1,26 @@
 # Calling Messenger Hub for Home Assistant
 
-Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản `2.0.4` hỗ trợ tài khoản Telegram, Discord, Signal và LINE Official Account:
+Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản `2.0.5` hỗ trợ tài khoản Telegram, Discord, Signal, LINE Official Account và SIM A7670C-LANS:
 
 - gửi tin nhắn, ảnh và voice message bằng Edge TTS qua tài khoản đã thêm trong add-on;
 - gọi P2P 1:1 Telegram và phát TTS khi người nhận nghe máy;
 - gọi lặp làm chuông báo động Telegram;
 - gửi chuông TTS lặp qua tài khoản Discord/Signal;
 - gửi tin nhắn/ảnh qua LINE Official Account;
+- gọi thoại thật qua SIM A7670C-LANS và phát TTS khi người nhận nghe máy;
 - theo dõi số tài khoản online và số cuộc gọi/chuông đang hoạt động.
 
 Integration này **không chứa phần đăng nhập**. Cần cài add-on
 `calling_messenger_hub` trước, sau đó nhập URL và API token của add-on.
 
-> Chưa kiểm thử với tài khoản Telegram, Discord, Signal hoặc LINE thật, hoặc
-> Home Assistant runtime thật. Tự động gọi/nhắn tin có thể vi phạm điều khoản
-> nền tảng; chỉ dùng tài khoản phụ và người nhận đã đồng ý.
+> Chưa kiểm thử với tài khoản Telegram, Discord, Signal, LINE hoặc mô-đun
+> A7670C-LANS thật, hoặc Home Assistant runtime thật. Tự động gọi/nhắn tin có
+> thể vi phạm điều khoản nền tảng và gây cước phí SIM; chỉ dùng tài khoản phụ
+> và người nhận đã đồng ý.
 
 ## Nâng cấp từ Telegram VoIP Notifier
+
+Bản `2.0.5` cập nhật mô tả service cho SIM; không đổi cấu hình.
 
 Bản `2.0.4` cập nhật mô tả service cho LINE; không đổi cấu hình.
 
@@ -63,7 +67,7 @@ Có thể đổi URL/token sau khi cài bằng **Configure**.
 
 ## Services
 
-`account` nhận ID tài khoản, số điện thoại quốc tế, tên tài khoản hoặc ID LINE (`ln_...`) trong add-on. Bỏ trống để dùng tài khoản online đầu tiên. Service `call` chỉ hỗ trợ Telegram; `ring` hỗ trợ Discord/Signal; LINE chỉ hỗ trợ `send_message` và `send_photo`.
+`account` nhận ID tài khoản, số điện thoại quốc tế, tên tài khoản, ID LINE (`ln_...`) hoặc ID SIM (`sm_...`) trong add-on. Bỏ trống để dùng tài khoản Telegram online đầu tiên; SIM chỉ dùng khi chọn rõ ID. Service `call` hỗ trợ Telegram và SIM; `ring` hỗ trợ Telegram, SIM và Discord/Signal; LINE chỉ hỗ trợ `send_message` và `send_photo`. SIM không hỗ trợ gửi tin nhắn/ảnh/TTS qua API.
 
 ### `calling_messenger_hub.send_message`
 
@@ -123,7 +127,7 @@ data:
   interval: 10
 ```
 
-Telegram gọi thoại lặp và phát TTS khi nghe máy. Discord/Signal gửi text tùy chọn một lần rồi gửi voice TTS lặp; không có phát hiện nghe máy, `ring_timeout` bị bỏ qua.
+Telegram và SIM gọi thoại lặp và phát TTS khi nghe máy; SIM bỏ qua `send_message`. Discord/Signal gửi text tùy chọn một lần rồi gửi voice TTS lặp; không có phát hiện nghe máy, `ring_timeout` bị bỏ qua.
 
 ### `calling_messenger_hub.hangup`
 
@@ -145,3 +149,4 @@ Bỏ `call_id` để kết thúc mọi cuộc gọi/chuông đang hoạt động
 - Với Telegram, tài khoản nhận phải bấm nghe máy thì TTS mới phát; P2P call không gọi nhóm.
 - Với Discord/Signal, `ring` chỉ gửi voice TTS lặp qua tin nhắn, không phải cuộc gọi thoại.
 - Với LINE, dùng user/group/room ID (`U...`/`C...`/`R...`). LINE không hỗ trợ `send_tts`, `call` hoặc `ring`; ảnh phải là URL HTTPS công khai.
+- Với SIM, `to` là số điện thoại. SIM chỉ gọi thoại, không nhận cuộc gọi đến, không gửi SMS/ảnh/TTS qua API; cước phí do nhà mạng tính và cần loa/mic phần cứng trên mô-đun A7670C-LANS.
