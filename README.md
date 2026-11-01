@@ -20,7 +20,7 @@ Integration này **không chứa phần đăng nhập**. Cần cài add-on
 
 ## Nâng cấp từ Telegram VoIP Notifier
 
-Bản `2.0.6` đi kèm add-on `0.9.0` hỗ trợ Quectel EC20/EC2x; không đổi cấu hình.
+Bản `2.0.6` tương thích add-on `0.10.0`; add-on bổ sung bảng SIM 4G xem nhà mạng, mức sóng, số dư, hạn dùng qua USSD và đọc SMS/OTP. Integration không đổi cấu hình.
 
 Bản `2.0.5` cập nhật mô tả service cho SIM; không đổi cấu hình.
 
