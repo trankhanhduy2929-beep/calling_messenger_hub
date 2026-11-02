@@ -103,7 +103,7 @@ SEND_TTS_SCHEMA = vol.Schema(
 CALL_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_TO): _text(1, 128),
-        vol.Required(ATTR_MESSAGE): _text(1, 2000),
+        vol.Optional(ATTR_MESSAGE, default=""): _text(0, 2000),
         vol.Optional(ATTR_ACCOUNT): _text(1, 64),
         vol.Optional(ATTR_VOICE): _text(1, 64),
         vol.Optional(ATTR_RATE): _text(1, 12),
@@ -204,7 +204,7 @@ async def _handle_call(call: ServiceCall) -> dict[str, Any]:
         api = _get_api(call.hass)
         return await api.async_call(
             to=call.data[ATTR_TO],
-            message=call.data[ATTR_MESSAGE],
+            message=call.data.get(ATTR_MESSAGE, ""),
             account=call.data.get(ATTR_ACCOUNT),
             voice=call.data.get(ATTR_VOICE),
             rate=call.data.get(ATTR_RATE),

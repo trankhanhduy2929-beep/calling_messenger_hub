@@ -1,24 +1,28 @@
 # Calling Messenger Hub for Home Assistant
 
-Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản `2.0.6` hỗ trợ tài khoản Telegram, Discord, Signal, LINE Official Account và SIM A7670C-LANS hoặc Quectel EC20/EC2x:
+Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản `2.0.7` hỗ trợ tài khoản Telegram, Discord, Signal, LINE Official Account, Zalo cá nhân và SIM A7670C-LANS hoặc Quectel EC20/EC2x:
 
 - gửi tin nhắn, ảnh và voice message bằng Edge TTS qua tài khoản đã thêm trong add-on;
 - gọi P2P 1:1 Telegram và phát TTS khi người nhận nghe máy;
 - gọi lặp làm chuông báo động Telegram;
 - gửi chuông TTS lặp qua tài khoản Discord/Signal;
 - gửi tin nhắn/ảnh qua LINE Official Account;
+- gửi tín hiệu đổ chuông Zalo qua tài khoản `zl_...`; Zalo chỉ đổ chuông, không phát TTS;
 - gọi thoại thật qua SIM A7670C-LANS hoặc Quectel EC20/EC2x và phát TTS khi người nhận nghe máy;
 - theo dõi số tài khoản online và số cuộc gọi/chuông đang hoạt động.
 
 Integration này **không chứa phần đăng nhập**. Cần cài add-on
 `calling_messenger_hub` trước, sau đó nhập URL và API token của add-on.
 
-> Chưa kiểm thử với tài khoản Telegram, Discord, Signal, LINE hoặc mô-đun
-> A7670C-LANS/EC20 thật, hoặc Home Assistant runtime thật. Tự động gọi/nhắn tin có
+> Chưa kiểm thử với tài khoản Telegram, Discord, Signal, LINE, Zalo hoặc mô-đun
+> A7670C-LANS/EC20 thật, hoặc Home Assistant runtime thật. Gọi Zalo mới được kiểm
+> thử bằng mock và chỉ đổ chuông, không truyền thoại/TTS. Tự động gọi/nhắn tin có
 > thể vi phạm điều khoản nền tảng và gây cước phí SIM; chỉ dùng tài khoản phụ
 > và người nhận đã đồng ý.
 
 ## Nâng cấp từ Telegram VoIP Notifier
+
+Bản `2.0.7` tương thích add-on `0.13.0`: service `call` cho phép bỏ trống `message` khi gọi Zalo (chỉ đổ chuông), đồng thời cập nhật mô tả service cho Zalo. Không đổi cấu hình.
 
 Bản `2.0.6` tương thích add-on `0.10.0`; add-on bổ sung bảng SIM 4G xem nhà mạng, mức sóng, số dư, hạn dùng qua USSD và đọc SMS/OTP. Integration không đổi cấu hình.
 
@@ -69,7 +73,7 @@ Có thể đổi URL/token sau khi cài bằng **Configure**.
 
 ## Services
 
-`account` nhận ID tài khoản, số điện thoại quốc tế, tên tài khoản, ID LINE (`ln_...`) hoặc ID SIM (`sm_...`) trong add-on. Bỏ trống để dùng tài khoản Telegram online đầu tiên; SIM chỉ dùng khi chọn rõ ID. Service `call` hỗ trợ Telegram và SIM; `ring` hỗ trợ Telegram, SIM và Discord/Signal; LINE chỉ hỗ trợ `send_message` và `send_photo`. SIM không hỗ trợ gửi tin nhắn/ảnh/TTS qua API.
+`account` nhận ID tài khoản, số điện thoại quốc tế, tên tài khoản, ID LINE (`ln_...`), ID Zalo (`zl_...`) hoặc ID SIM (`sm_...`) trong add-on. Bỏ trống để dùng tài khoản Telegram online đầu tiên; SIM/Zalo chỉ dùng khi chọn rõ ID. Service `call` hỗ trợ Telegram, SIM và đổ chuông Zalo; `ring` hỗ trợ Telegram, SIM và Discord/Signal; LINE chỉ hỗ trợ `send_message` và `send_photo`. SIM không hỗ trợ gửi tin nhắn/ảnh/TTS qua API; Zalo chỉ nhận `send_message`, không nhận ảnh/TTS.
 
 ### `calling_messenger_hub.send_message`
 
@@ -117,6 +121,16 @@ data:
   wait: true
 ```
 
+Với Zalo, chọn `account: zl_...`, nhập `to` là UID Zalo và có thể bỏ `message`; add-on chỉ gửi tín hiệu đổ chuông, không phát TTS:
+
+```yaml
+action: calling_messenger_hub.call
+data:
+  account: "zl_1234567890"
+  to: "222222222"
+  ring_timeout: 45
+```
+
 ### `calling_messenger_hub.ring`
 
 ```yaml
@@ -150,5 +164,6 @@ Bỏ `call_id` để kết thúc mọi cuộc gọi/chuông đang hoạt động
 
 - Với Telegram, tài khoản nhận phải bấm nghe máy thì TTS mới phát; P2P call không gọi nhóm.
 - Với Discord/Signal, `ring` chỉ gửi voice TTS lặp qua tin nhắn, không phải cuộc gọi thoại.
+- Với Zalo, `call` chỉ gửi tín hiệu đổ chuông; không truyền thoại/TTS và không đảm bảo người nhận kết nối. `message`, `voice` và `rate` bị bỏ qua.
 - Với LINE, dùng user/group/room ID (`U...`/`C...`/`R...`). LINE không hỗ trợ `send_tts`, `call` hoặc `ring`; ảnh phải là URL HTTPS công khai.
 - Với SIM, `to` là số điện thoại. SIM chỉ gọi thoại, không nhận cuộc gọi đến, không gửi SMS/ảnh/TTS qua API; cước phí do nhà mạng tính. A7670C-LANS cần loa/mic phần cứng; EC20/EC2x phát TTS trực tiếp vào đường lên nên không cần card âm thanh trên host.

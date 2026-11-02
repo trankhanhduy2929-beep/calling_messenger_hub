@@ -78,7 +78,7 @@ send_tts:
 
 call:
   name: Gọi và phát TTS
-  description: Gọi P2P Telegram hoặc gọi thoại thật qua SIM A7670C-LANS, chờ người nhận nghe máy rồi phát nội dung TTS.
+  description: Gọi P2P Telegram, đổ chuông Zalo hoặc gọi thoại thật qua SIM A7670C-LANS. Telegram/SIM chờ người nhận nghe máy rồi phát nội dung TTS; Zalo chỉ đổ chuông.
   fields:
     to:
       name: Người nhận
@@ -87,13 +87,14 @@ call:
         text:
     message:
       name: Nội dung đọc
-      required: true
+      description: Bắt buộc với Telegram/SIM. Bỏ trống khi gọi Zalo vì Zalo chỉ đổ chuông và không phát TTS.
+      required: false
       selector:
         text:
           multiline: true
     account:
       name: Tài khoản gửi
-      description: ID, số điện thoại hoặc tên tài khoản Telegram, hoặc ID SIM (sm_...). Bỏ trống để dùng tài khoản Telegram online đầu tiên; SIM chỉ dùng khi chọn rõ ID.
+      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID SIM (sm_...) hoặc ID Zalo (zl_...). Bỏ trống để dùng tài khoản Telegram online đầu tiên; SIM/Zalo chỉ dùng khi chọn rõ ID.
       selector:
         text:
     voice:
