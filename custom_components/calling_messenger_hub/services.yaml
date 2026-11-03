@@ -1,10 +1,10 @@
 send_message:
   name: Gửi tin nhắn
-  description: Gửi tin nhắn văn bản qua tài khoản Telegram, Discord, Signal hoặc LINE Official Account đã cấu hình. SIM A7670C-LANS không hỗ trợ tin nhắn.
+  description: Gửi tin nhắn văn bản qua Telegram, Discord, Signal, LINE Official Account hoặc Zalo cá nhân. SIM A7670C-LANS không hỗ trợ tin nhắn.
   fields:
     to:
       name: Người nhận
-      description: Telegram dùng username, số điện thoại hoặc ID; Discord dùng ID kênh/người dùng, #ten-kenh hoặc @username; Signal dùng số E.164, group.* hoặc username; LINE dùng user/group/room ID (U.../C.../R...).
+      description: Telegram dùng username, số điện thoại hoặc ID; Discord dùng ID kênh/người dùng, #ten-kenh hoặc @username; Signal dùng số E.164, group.* hoặc username; LINE dùng user/group/room ID (U.../C.../R...); Zalo dùng UID người dùng hoặc ID nhóm.
       required: true
       selector:
         text:
@@ -17,7 +17,7 @@ send_message:
           multiline: true
     account:
       name: Tài khoản gửi
-      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...) hoặc ID LINE (ln_...). Bỏ trống để dùng tài khoản online theo thứ tự Telegram, Discord, Signal, LINE. ID SIM (sm_...) bị từ chối vì SIM chỉ gọi thoại.
+      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...), ID LINE (ln_...) hoặc ID Zalo (zl_...). Bỏ trống để add-on tự chọn tài khoản online; nên chọn rõ ID khi có nhiều dịch vụ. ID SIM (sm_...) bị từ chối vì SIM chỉ gọi thoại.
       selector:
         text:
     parse_mode:
@@ -43,10 +43,11 @@ send_message:
 
 send_tts:
   name: Gửi tin nhắn thoại
-  description: Tạo giọng nói từ văn bản và gửi voice message Telegram hoặc file audio Discord/Signal. LINE và SIM không hỗ trợ gửi TTS cục bộ; SIM chỉ phát TTS trong cuộc gọi.
+  description: Tạo giọng nói từ văn bản và gửi voice message qua Telegram, Discord, Signal hoặc Zalo. LINE và SIM không hỗ trợ gửi TTS cục bộ; SIM chỉ phát TTS trong cuộc gọi.
   fields:
     to:
       name: Người nhận
+      description: Telegram dùng username hoặc ID; Discord dùng ID kênh/người dùng; Signal dùng số E.164 hoặc group.*; Zalo dùng UID người dùng hoặc ID nhóm.
       required: true
       selector:
         text:
@@ -58,7 +59,7 @@ send_tts:
           multiline: true
     account:
       name: Tài khoản gửi
-      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...) hoặc ID LINE (ln_...). Bỏ trống để dùng tài khoản online theo thứ tự Telegram, Discord, Signal, LINE. ID SIM (sm_...) bị từ chối vì SIM chỉ gọi thoại.
+      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...), ID LINE (ln_...) hoặc ID Zalo (zl_...). Bỏ trống để add-on tự chọn tài khoản online; nên chọn rõ ID khi có nhiều dịch vụ. ID SIM (sm_...) bị từ chối vì SIM chỉ gọi thoại.
       selector:
         text:
     voice:
@@ -78,16 +79,17 @@ send_tts:
 
 call:
   name: Gọi và phát TTS
-  description: Gọi P2P Telegram, đổ chuông Zalo hoặc gọi thoại thật qua SIM A7670C-LANS. Telegram/SIM chờ người nhận nghe máy rồi phát nội dung TTS; Zalo chỉ đổ chuông.
+  description: Gọi P2P Telegram, gọi Zalo một chiều hoặc gọi thoại thật qua SIM A7670C-LANS. Telegram/SIM/Zalo chờ người nhận nghe máy rồi phát nội dung TTS; Zalo không truyền thoại hai chiều.
   fields:
     to:
       name: Người nhận
+      description: Telegram dùng username hoặc ID; SIM dùng số điện thoại; Zalo dùng UID người dùng.
       required: true
       selector:
         text:
     message:
       name: Nội dung đọc
-      description: Bắt buộc với Telegram/SIM. Bỏ trống khi gọi Zalo vì Zalo chỉ đổ chuông và không phát TTS.
+      description: Bắt buộc với Telegram/SIM. Với Zalo, bỏ trống nếu chỉ muốn đổ chuông; nhập nội dung để phát TTS sau khi người nhận nghe máy.
       required: false
       selector:
         text:
@@ -131,7 +133,7 @@ call:
 
 ring:
   name: Chuông báo động
-  description: Telegram hoặc SIM gọi thoại lặp và phát TTS khi nghe máy; Discord/Signal gửi voice TTS lặp qua tài khoản, tùy chọn gửi kèm tin nhắn. SIM không gửi tin nhắn kèm.
+  description: Telegram hoặc SIM gọi thoại lặp và phát TTS khi nghe máy; Discord/Signal gửi voice TTS lặp qua tài khoản, tùy chọn gửi kèm tin nhắn. Zalo và LINE không hỗ trợ chuông TTS; SIM không gửi tin nhắn kèm.
   fields:
     to:
       name: Người nhận
@@ -146,7 +148,7 @@ ring:
           multiline: true
     account:
       name: Tài khoản gửi
-      description: ID, số điện thoại hoặc tên tài khoản Telegram, hoặc ID SIM (sm_...). Telegram/SIM gọi thoại; Discord/Signal gửi voice TTS lặp; LINE không hỗ trợ chuông. Bỏ trống để dùng tài khoản online đầu tiên.
+      description: ID, số điện thoại hoặc tên tài khoản Telegram, hoặc ID SIM (sm_...). Telegram/SIM gọi thoại; Discord/Signal gửi voice TTS lặp; Zalo/LINE không hỗ trợ chuông. Bỏ trống để dùng tài khoản online đầu tiên.
       selector:
         text:
     voice:
@@ -189,7 +191,7 @@ ring:
 
 hangup:
   name: Kết thúc cuộc gọi/chuông
-  description: Hủy một cuộc gọi Telegram/SIM, chuông TTS hoặc toàn bộ hoạt động đang chạy.
+  description: Hủy một cuộc gọi Telegram/SIM/Zalo, chuông TTS hoặc toàn bộ hoạt động đang chạy.
   fields:
     call_id:
       name: ID cuộc gọi
@@ -204,11 +206,11 @@ hangup:
 
 send_photo:
   name: Gửi ảnh
-  description: Gửi ảnh qua Telegram, Discord hoặc Signal từ URL, dữ liệu ảnh hoặc file trong /data/media; LINE chỉ nhận URL HTTPS công khai; SIM không hỗ trợ ảnh.
+  description: Gửi ảnh qua Telegram, Discord, Signal hoặc Zalo từ URL, dữ liệu ảnh hoặc file trong /data/media; LINE chỉ nhận URL HTTPS công khai; SIM không hỗ trợ ảnh.
   fields:
     to:
       name: Người nhận
-      description: Telegram dùng username, số điện thoại hoặc ID; Discord dùng ID kênh/người dùng, #ten-kenh hoặc @username; Signal dùng số E.164, group.* hoặc username; LINE dùng user/group/room ID (U.../C.../R...).
+      description: Telegram dùng username, số điện thoại hoặc ID; Discord dùng ID kênh/người dùng, #ten-kenh hoặc @username; Signal dùng số E.164, group.* hoặc username; LINE dùng user/group/room ID (U.../C.../R...); Zalo dùng UID người dùng hoặc ID nhóm.
       required: true
       selector:
         text:
@@ -220,7 +222,7 @@ send_photo:
         text:
     account:
       name: Tài khoản gửi
-      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...) hoặc ID LINE (ln_...). Bỏ trống để dùng tài khoản online theo thứ tự Telegram, Discord, Signal, LINE. ID SIM (sm_...) bị từ chối vì SIM chỉ gọi thoại.
+      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...), ID LINE (ln_...) hoặc ID Zalo (zl_...). Bỏ trống để add-on tự chọn tài khoản online; nên chọn rõ ID khi có nhiều dịch vụ. ID SIM (sm_...) bị từ chối vì SIM chỉ gọi thoại.
       selector:
         text:
     caption:

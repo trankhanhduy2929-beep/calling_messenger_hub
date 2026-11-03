@@ -1,26 +1,30 @@
 # Calling Messenger Hub for Home Assistant
 
-Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản `2.0.7` hỗ trợ tài khoản Telegram, Discord, Signal, LINE Official Account, Zalo cá nhân và SIM A7670C-LANS hoặc Quectel EC20/EC2x:
+Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản `2.0.8` hỗ trợ tài khoản Telegram, Discord, Signal, LINE Official Account, Zalo cá nhân và SIM A7670C-LANS hoặc Quectel EC20/EC2x:
 
 - gửi tin nhắn, ảnh và voice message bằng Edge TTS qua tài khoản đã thêm trong add-on;
 - gọi P2P 1:1 Telegram và phát TTS khi người nhận nghe máy;
 - gọi lặp làm chuông báo động Telegram;
 - gửi chuông TTS lặp qua tài khoản Discord/Signal;
 - gửi tin nhắn/ảnh qua LINE Official Account;
-- gửi tín hiệu đổ chuông Zalo qua tài khoản `zl_...`; Zalo chỉ đổ chuông, không phát TTS;
+- gửi tin nhắn, ảnh và voice TTS Zalo qua tài khoản `zl_...`;
+- gọi Zalo một chiều và phát TTS sau khi người nhận nghe máy;
 - gọi thoại thật qua SIM A7670C-LANS hoặc Quectel EC20/EC2x và phát TTS khi người nhận nghe máy;
 - theo dõi số tài khoản online và số cuộc gọi/chuông đang hoạt động.
 
 Integration này **không chứa phần đăng nhập**. Cần cài add-on
 `calling_messenger_hub` trước, sau đó nhập URL và API token của add-on.
 
-> Chưa kiểm thử với tài khoản Telegram, Discord, Signal, LINE, Zalo hoặc mô-đun
-> A7670C-LANS/EC20 thật, hoặc Home Assistant runtime thật. Gọi Zalo mới được kiểm
-> thử bằng mock và chỉ đổ chuông, không truyền thoại/TTS. Tự động gọi/nhắn tin có
+> Chưa kiểm thử với tài khoản Telegram, Discord, Signal, LINE hoặc mô-đun
+> A7670C-LANS/EC20 thật, hoặc Home Assistant runtime thật. Gửi voice TTS Zalo đã
+> được xác nhận trên tài khoản thật; gọi Zalo một chiều mới được kiểm thử bằng mock.
+> Tự động gọi/nhắn tin có
 > thể vi phạm điều khoản nền tảng và gây cước phí SIM; chỉ dùng tài khoản phụ
 > và người nhận đã đồng ý.
 
 ## Nâng cấp từ Telegram VoIP Notifier
+
+Bản `2.0.8` cập nhật mô tả và ví dụ cho đầy đủ tính năng Zalo: nhắn tin, gửi ảnh, gửi voice TTS và gọi một chiều phát TTS sau khi nghe máy. Integration tương thích add-on `0.15.5`; không đổi cấu hình hay mã gọi API.
 
 Bản `2.0.7` tương thích add-on `0.13.0`: service `call` cho phép bỏ trống `message` khi gọi Zalo (chỉ đổ chuông), đồng thời cập nhật mô tả service cho Zalo. Không đổi cấu hình.
 
@@ -73,7 +77,7 @@ Có thể đổi URL/token sau khi cài bằng **Configure**.
 
 ## Services
 
-`account` nhận ID tài khoản, số điện thoại quốc tế, tên tài khoản, ID LINE (`ln_...`), ID Zalo (`zl_...`) hoặc ID SIM (`sm_...`) trong add-on. Bỏ trống để dùng tài khoản Telegram online đầu tiên; SIM/Zalo chỉ dùng khi chọn rõ ID. Service `call` hỗ trợ Telegram, SIM và đổ chuông Zalo; `ring` hỗ trợ Telegram, SIM và Discord/Signal; LINE chỉ hỗ trợ `send_message` và `send_photo`. SIM không hỗ trợ gửi tin nhắn/ảnh/TTS qua API; Zalo chỉ nhận `send_message`, không nhận ảnh/TTS.
+`account` nhận ID tài khoản, số điện thoại quốc tế, tên tài khoản, ID LINE (`ln_...`), ID Zalo (`zl_...`) hoặc ID SIM (`sm_...`) trong add-on. Bỏ trống để add-on tự chọn tài khoản online; nên chọn rõ ID khi có nhiều dịch vụ. Service `call` hỗ trợ Telegram, SIM và Zalo; `ring` hỗ trợ Telegram, SIM và Discord/Signal; LINE chỉ hỗ trợ `send_message` và `send_photo`; Zalo không hỗ trợ `ring`. SIM không hỗ trợ gửi tin nhắn/ảnh/TTS qua API.
 
 ### `calling_messenger_hub.send_message`
 
@@ -95,6 +99,8 @@ data:
   message: "Cửa chính đang mở."
   voice: "vi-VN-HoaiMyNeural"
 ```
+
+Với Zalo, dùng `account: zl_...` và `to` là UID người dùng hoặc ID nhóm. Add-on tổng hợp MP3, tải lên Zalo rồi gửi voice message.
 
 ### `calling_messenger_hub.send_photo`
 
@@ -121,13 +127,14 @@ data:
   wait: true
 ```
 
-Với Zalo, chọn `account: zl_...`, nhập `to` là UID Zalo và có thể bỏ `message`; add-on chỉ gửi tín hiệu đổ chuông, không phát TTS:
+Với Zalo, chọn `account: zl_...`, nhập `to` là UID Zalo. Nhập `message` để phát TTS một chiều sau khi người nhận nghe máy; bỏ trống nếu chỉ muốn đổ chuông:
 
 ```yaml
 action: calling_messenger_hub.call
 data:
   account: "zl_1234567890"
   to: "222222222"
+  message: "Có người lạ trước cửa."
   ring_timeout: 45
 ```
 
@@ -164,6 +171,6 @@ Bỏ `call_id` để kết thúc mọi cuộc gọi/chuông đang hoạt động
 
 - Với Telegram, tài khoản nhận phải bấm nghe máy thì TTS mới phát; P2P call không gọi nhóm.
 - Với Discord/Signal, `ring` chỉ gửi voice TTS lặp qua tin nhắn, không phải cuộc gọi thoại.
-- Với Zalo, `call` chỉ gửi tín hiệu đổ chuông; không truyền thoại/TTS và không đảm bảo người nhận kết nối. `message`, `voice` và `rate` bị bỏ qua.
+- Với Zalo, `call` chỉ truyền TTS một chiều sau khi người nhận nghe máy; không nghe mic và không truyền thoại hai chiều. Bỏ `message` để chỉ đổ chuông. `ring` không hỗ trợ Zalo.
 - Với LINE, dùng user/group/room ID (`U...`/`C...`/`R...`). LINE không hỗ trợ `send_tts`, `call` hoặc `ring`; ảnh phải là URL HTTPS công khai.
 - Với SIM, `to` là số điện thoại. SIM chỉ gọi thoại, không nhận cuộc gọi đến, không gửi SMS/ảnh/TTS qua API; cước phí do nhà mạng tính. A7670C-LANS cần loa/mic phần cứng; EC20/EC2x phát TTS trực tiếp vào đường lên nên không cần card âm thanh trên host.
