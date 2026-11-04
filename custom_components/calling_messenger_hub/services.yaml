@@ -79,7 +79,7 @@ send_tts:
 
 call:
   name: Gọi và phát TTS
-  description: Gọi P2P Telegram, gọi Zalo một chiều hoặc gọi số qua SIM A7670C-LANS và phát TTS một chiều. Telegram/SIM/Zalo chờ người nhận nghe máy rồi phát nội dung TTS; SIM/Zalo không truyền mic/loa hai chiều.
+  description: Gọi P2P Telegram, gọi Zalo một chiều hoặc gọi cảnh báo TTS qua SIM A7670C-LANS. Telegram/SIM/Zalo chờ người nhận nghe máy rồi phát nội dung TTS; SIM/Zalo không truyền mic/loa hai chiều.
   fields:
     to:
       name: Người nhận
@@ -133,7 +133,7 @@ call:
 
 ring:
   name: Chuông báo động
-  description: Telegram hoặc SIM gọi thoại lặp và phát TTS khi nghe máy; Discord/Signal gửi voice TTS lặp qua tài khoản, tùy chọn gửi kèm tin nhắn. Zalo và LINE không hỗ trợ chuông TTS; SIM không gửi tin nhắn kèm.
+  description: Telegram hoặc SIM gọi cảnh báo TTS lặp và phát TTS khi nghe máy; Discord/Signal gửi voice TTS lặp qua tài khoản, tùy chọn gửi kèm tin nhắn. Zalo và LINE không hỗ trợ chuông TTS; SIM không gửi tin nhắn kèm.
   fields:
     to:
       name: Người nhận
@@ -201,64 +201,6 @@ hangup:
     account:
       name: Tài khoản
       description: ID, số điện thoại hoặc tên tài khoản cần lọc.
-      selector:
-        text:
-
-dial:
-  name: Gọi thủ công qua SIM
-  description: Gọi một số điện thoại qua mô-đun SIM 4G và giữ cuộc gọi cho đến khi gọi hangup hoặc đầu bên kia kết thúc. Không phát TTS.
-  fields:
-    to:
-      name: Số điện thoại
-      description: Số cần gọi. Dùng số Việt Nam hoặc định dạng quốc tế +84.
-      required: true
-      selector:
-        text:
-    account:
-      name: Tài khoản SIM
-      description: ID SIM (sm_...) hoặc tên/số SIM cần dùng để gọi.
-      required: true
-      selector:
-        text:
-    ring_timeout:
-      name: Thời gian đổ chuông
-      description: Giây chờ người nhận nghe máy. Bỏ trống dùng mặc định của add-on.
-      selector:
-        number:
-          min: 10
-          max: 180
-          unit_of_measurement: s
-
-answer:
-  name: Nghe máy cuộc gọi SIM
-  description: Trả lời cuộc gọi đến đang đổ chuông trên mô-đun SIM 4G. Dùng kèm tự động hóa CLIP để thông báo cuộc gọi đến.
-  fields:
-    account:
-      name: Tài khoản SIM
-      description: ID SIM (sm_...) hoặc tên/số SIM đang có cuộc gọi đến.
-      required: true
-      selector:
-        text:
-    call_id:
-      name: ID cuộc gọi
-      description: Tùy chọn, dùng khi cần gắn với một bản ghi cuộc gọi cụ thể.
-      selector:
-        text:
-
-send_dtmf:
-  name: Gửi DTMF trong cuộc gọi SIM
-  description: Gửi phím DTMF (0-9, *, #, A-D) vào cuộc gọi SIM đang hoạt động, ví dụ để nhập mã menu tổng đài.
-  fields:
-    account:
-      name: Tài khoản SIM
-      description: ID SIM (sm_...) hoặc tên/số SIM đang có cuộc gọi hoạt động.
-      required: true
-      selector:
-        text:
-    digits:
-      name: Chuỗi phím
-      description: Các phím cần gửi, tối đa 32 ký tự. Ví dụ 1#, 1234 hoặc *100#.
-      required: true
       selector:
         text:
 
