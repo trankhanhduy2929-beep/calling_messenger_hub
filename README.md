@@ -1,90 +1,49 @@
 # Calling Messenger Hub for Home Assistant
 
-Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản `2.1.0` hỗ trợ tài khoản Telegram, Discord, Signal, LINE Official Account, Zalo cá nhân và SIM A7670C-LANS hoặc Quectel EC20/EC2x:
+Custom integration kết nối Home Assistant với add-on **Calling Messenger Hub** qua REST API. Integration dùng các tài khoản Telegram, Discord, Signal, LINE Official Account, Zalo và SIM 4G đã thêm trong add-on.
 
-- gửi tin nhắn, ảnh và voice message bằng Edge TTS qua tài khoản đã thêm trong add-on;
-- gọi P2P 1:1 Telegram và phát TTS khi người nhận nghe máy;
-- gọi lặp làm chuông báo động Telegram;
-- gửi chuông TTS lặp qua tài khoản Discord/Signal;
-- gửi tin nhắn/ảnh qua LINE Official Account;
-- gửi tin nhắn, ảnh và voice TTS Zalo qua tài khoản `zl_...`;
-- gọi Zalo một chiều và phát TTS sau khi người nhận nghe máy;
-- gọi thoại thật qua SIM A7670C-LANS hoặc Quectel EC20/EC2x và phát TTS khi người nhận nghe máy;
-- theo dõi số tài khoản online và số cuộc gọi/chuông đang hoạt động;
-- kích hoạt chính sách báo động, xác nhận/đánh dấu đã xử lý/hủy và theo dõi số báo động đang chạy hoặc chưa xác nhận.
+## Tính năng
 
-Integration này **không chứa phần đăng nhập**. Cần cài add-on
-`calling_messenger_hub` trước, sau đó nhập URL và API token của add-on.
+- Gửi tin nhắn, ảnh và voice message bằng Edge TTS.
+- Gọi P2P Telegram, gọi Zalo một chiều và gọi thoại thật qua SIM 4G.
+- Gọi lặp hoặc gửi voice TTS lặp làm chuông báo động.
+- Kích hoạt chính sách báo động, xác nhận, đánh dấu đã xử lý hoặc hủy.
+- Theo dõi tài khoản online, cuộc gọi, chuông và báo động.
 
-> Chưa kiểm thử với tài khoản Telegram, Discord, Signal, LINE hoặc mô-đun
-> A7670C-LANS/EC20 thật, hoặc Home Assistant runtime thật. Gửi voice TTS Zalo đã
-> được xác nhận trên tài khoản thật; gọi Zalo một chiều mới được kiểm thử bằng mock.
-> Trung tâm báo động mới được kiểm thử bằng mock/pytest, chưa chạy leo thang thật qua
-> dịch vụ/SIM.
-> Tự động gọi/nhắn tin có
-> thể vi phạm điều khoản nền tảng và gây cước phí SIM; chỉ dùng tài khoản phụ
-> và người nhận đã đồng ý.
+Integration không chứa phần đăng nhập. Cần cài và cấu hình add-on trước.
 
-## Nâng cấp từ Telegram VoIP Notifier
+## Yêu cầu
 
-Bản `2.1.0` tương thích add-on `0.16.0`: thêm service `trigger_alert`, `acknowledge_alert`, `resolve_alert`, `cancel_alert` và sensor `alerts_active`, `alerts_unacknowledged`. Không đổi cấu hình.
-
-Bản `2.0.8` cập nhật mô tả và ví dụ cho đầy đủ tính năng Zalo: nhắn tin, gửi ảnh, gửi voice TTS và gọi một chiều phát TTS sau khi nghe máy. Integration tương thích add-on `0.15.5`; không đổi cấu hình hay mã gọi API.
-
-Bản `2.0.7` tương thích add-on `0.13.0`: service `call` cho phép bỏ trống `message` khi gọi Zalo (chỉ đổ chuông), đồng thời cập nhật mô tả service cho Zalo. Không đổi cấu hình.
-
-Bản `2.0.6` tương thích add-on `0.10.0`; add-on bổ sung bảng SIM 4G xem nhà mạng, mức sóng, số dư, hạn dùng qua USSD và đọc SMS/OTP. Integration không đổi cấu hình.
-
-Bản `2.0.5` cập nhật mô tả service cho SIM; không đổi cấu hình.
-
-Bản `2.0.4` cập nhật mô tả service cho LINE; không đổi cấu hình.
-
-Bản `2.0.3` cập nhật mô tả service `ring` cho Discord/Signal; không đổi cấu hình.
-
-Bản `2.0.2` đổi cổng mặc định của add-on sang `3030`. Nếu config entry cũ dùng cổng `3332`, integration tự cập nhật URL mặc định khi khởi động; URL tùy chỉnh cần sửa tay.
-
-Bản `2.0.1` đổi tên integration và domain:
-
-- Integration domain: `telegram_voip` → `calling_messenger_hub`.
-- Service prefix: `telegram_voip.*` → `calling_messenger_hub.*`.
-- Sensor entity ID: `sensor.telegram_voip_*` → `sensor.calling_messenger_hub_*`.
-- Add-on slug: `telegram_voip` → `calling_messenger_hub`.
-- Dữ liệu Telegram trong `/data` của add-on giữ nguyên.
-
-Gỡ integration cũ, cài bản mới, rồi cập nhật automation sang service prefix mới.
+- Add-on **Calling Messenger Hub** đang chạy.
+- API token trong add-on tại **Cài đặt → API token cho custom integration**.
+- Home Assistant kết nối được tới URL nội bộ của add-on.
 
 ## Cài đặt
 
 ### HACS
 
 1. HACS > Integrations > Custom repositories.
-2. Thêm `https://github.com/trankhanhduy2929-beep/calling_messenger_hub`,
-   category **Integration**.
+2. Thêm `https://github.com/trankhanhduy2929-beep/calling_messenger_hub`, category **Integration**.
 3. Cài **Calling Messenger Hub**.
 4. Restart Home Assistant.
 5. Settings > Devices & services > Add integration > **Calling Messenger Hub**.
-6. Nhập URL add-on, ví dụ `http://local-calling-messenger-hub:3030`, và API token.
+6. Nhập URL add-on và API token.
 
 ### Thủ công
 
-Copy thư mục `custom_components/calling_messenger_hub` vào
-`/config/custom_components/calling_messenger_hub`, restart Home Assistant, rồi thêm
-integration.
+Copy thư mục `custom_components/calling_messenger_hub` vào `/config/custom_components/calling_messenger_hub`, restart Home Assistant, rồi thêm integration.
 
 ## Cấu hình
 
-- **Add-on URL**: URL nội bộ của add-on, thường là
-  `http://local-calling-messenger-hub:3030`. Không thêm dấu `/` ở cuối.
-- **API token**: sao chép trong add-on tại **Cài đặt → API token cho custom
-  integration**.
-
-Có thể đổi URL/token sau khi cài bằng **Configure**.
+- **Add-on URL:** thường là `http://local-calling-messenger-hub:3030`. Không thêm dấu `/` ở cuối.
+- **API token:** sao chép từ add-on.
+- Có thể đổi URL hoặc token sau khi cài bằng **Configure**.
 
 ## Services
 
-`account` nhận ID tài khoản, số điện thoại quốc tế, tên tài khoản, ID LINE (`ln_...`), ID Zalo (`zl_...`) hoặc ID SIM (`sm_...`) trong add-on. Bỏ trống để add-on tự chọn tài khoản online; nên chọn rõ ID khi có nhiều dịch vụ. Service `call` hỗ trợ Telegram, SIM và Zalo; `ring` hỗ trợ Telegram, SIM và Discord/Signal; LINE chỉ hỗ trợ `send_message` và `send_photo`; Zalo không hỗ trợ `ring`. SIM không hỗ trợ gửi tin nhắn/ảnh/TTS qua API.
+`account` nhận ID tài khoản, số điện thoại quốc tế, tên tài khoản, ID Discord (`dc_...`), ID Signal (`sg_...`), ID LINE (`ln_...`), ID Zalo (`zl_...`) hoặc ID SIM (`sm_...`). Bỏ trống để add-on tự chọn tài khoản online; nên chọn rõ ID khi có nhiều dịch vụ.
 
-### `calling_messenger_hub.send_message`
+### Gửi tin nhắn
 
 ```yaml
 action: calling_messenger_hub.send_message
@@ -94,7 +53,9 @@ data:
   message: "Cảnh báo từ Home Assistant"
 ```
 
-### `calling_messenger_hub.send_tts`
+Hỗ trợ Telegram, Discord, Signal, LINE và Zalo. SIM không hỗ trợ gửi tin nhắn.
+
+### Gửi voice TTS
 
 ```yaml
 action: calling_messenger_hub.send_tts
@@ -105,9 +66,9 @@ data:
   voice: "vi-VN-HoaiMyNeural"
 ```
 
-Với Zalo, dùng `account: zl_...` và `to` là UID người dùng hoặc ID nhóm. Add-on tổng hợp MP3, tải lên Zalo rồi gửi voice message.
+Hỗ trợ Telegram, Discord, Signal và Zalo. LINE và SIM không hỗ trợ gửi TTS cục bộ.
 
-### `calling_messenger_hub.send_photo`
+### Gửi ảnh
 
 ```yaml
 action: calling_messenger_hub.send_photo
@@ -118,9 +79,9 @@ data:
   caption: "Ảnh camera cửa chính."
 ```
 
-URL phải truy cập được từ Internet vì Telegram tải ảnh trực tiếp. Với ảnh nội bộ, chọn file trong Web UI. LINE chỉ nhận URL HTTPS công khai, không nhận file nội bộ hay data URI.
+Hỗ trợ URL, data URL base64 hoặc file trong `/data/media` của add-on. LINE chỉ nhận URL HTTPS công khai.
 
-### `calling_messenger_hub.call`
+### Gọi và phát TTS
 
 ```yaml
 action: calling_messenger_hub.call
@@ -132,7 +93,9 @@ data:
   wait: true
 ```
 
-Với Zalo, chọn `account: zl_...`, nhập `to` là UID Zalo. Nhập `message` để phát TTS một chiều sau khi người nhận nghe máy; bỏ trống nếu chỉ muốn đổ chuông:
+`wait: true` giữ service đến khi cuộc gọi kết thúc hoặc hết `wait_seconds`.
+
+Với Zalo:
 
 ```yaml
 action: calling_messenger_hub.call
@@ -143,7 +106,9 @@ data:
   ring_timeout: 45
 ```
 
-### `calling_messenger_hub.ring`
+Bỏ `message` nếu chỉ muốn đổ chuông. Zalo chỉ truyền TTS một chiều, không nghe mic.
+
+### Chuông báo động
 
 ```yaml
 action: calling_messenger_hub.ring
@@ -155,9 +120,9 @@ data:
   interval: 10
 ```
 
-Telegram và SIM gọi thoại lặp và phát TTS khi nghe máy; SIM bỏ qua `send_message`. Discord/Signal gửi text tùy chọn một lần rồi gửi voice TTS lặp; không có phát hiện nghe máy, `ring_timeout` bị bỏ qua.
+Telegram và SIM gọi thoại lặp. Discord và Signal gửi voice TTS lặp. Zalo và LINE không hỗ trợ chuông.
 
-### `calling_messenger_hub.hangup`
+### Kết thúc cuộc gọi
 
 ```yaml
 action: calling_messenger_hub.hangup
@@ -165,9 +130,9 @@ data:
   call_id: "call-id"
 ```
 
-Bỏ `call_id` để kết thúc mọi cuộc gọi/chuông đang hoạt động.
+Bỏ `call_id` để kết thúc mọi cuộc gọi hoặc chuông đang hoạt động.
 
-### `calling_messenger_hub.trigger_alert`
+### Kích hoạt báo động
 
 ```yaml
 action: calling_messenger_hub.trigger_alert
@@ -177,9 +142,9 @@ data:
   dedupe_key: "cua-chinh"
 ```
 
-Truyền `policy_id` hoặc `name` (tên chính xác của chính sách). `message` ghi đè lời thoại; `severity` nhận `info`, `warning`, `critical`. Báo động đang chạy cùng `dedupe_key` không tạo thêm.
+Truyền `policy_id` hoặc `name` là tên chính xác của chính sách. `message` ghi đè lời thoại; `severity` nhận `info`, `warning` hoặc `critical`. Báo động đang chạy cùng `dedupe_key` sẽ không tạo thêm.
 
-### `calling_messenger_hub.acknowledge_alert`
+### Xác nhận và xử lý
 
 ```yaml
 action: calling_messenger_hub.acknowledge_alert
@@ -188,7 +153,9 @@ data:
   by: "telegram:owner"
 ```
 
-Xác nhận đã nhận báo động và dừng leo thang. `resolve_alert` đánh dấu đã xử lý; `cancel_alert` dừng chuỗi và hủy cuộc gọi/chuông hiện tại. Cả ba service nhận `alert_id` bắt buộc và `by` tùy chọn.
+- `acknowledge_alert`: xác nhận đã nhận và dừng leo thang.
+- `resolve_alert`: đánh dấu đã xử lý.
+- `cancel_alert`: hủy báo động và dừng cuộc gọi hoặc chuông hiện tại.
 
 ## Sensor
 
@@ -199,8 +166,11 @@ Xác nhận đã nhận báo động và dừng leo thang. `resolve_alert` đán
 
 ## Ghi chú
 
-- Với Telegram, tài khoản nhận phải bấm nghe máy thì TTS mới phát; P2P call không gọi nhóm.
-- Với Discord/Signal, `ring` chỉ gửi voice TTS lặp qua tin nhắn, không phải cuộc gọi thoại.
-- Với Zalo, `call` chỉ truyền TTS một chiều sau khi người nhận nghe máy; không nghe mic và không truyền thoại hai chiều. Bỏ `message` để chỉ đổ chuông. `ring` không hỗ trợ Zalo.
-- Với LINE, dùng user/group/room ID (`U...`/`C...`/`R...`). LINE không hỗ trợ `send_tts`, `call` hoặc `ring`; ảnh phải là URL HTTPS công khai.
-- Với SIM, `to` là số điện thoại. SIM chỉ gọi thoại, không nhận cuộc gọi đến, không gửi SMS/ảnh/TTS qua API; cước phí do nhà mạng tính. A7670C-LANS cần loa/mic phần cứng; EC20/EC2x phát TTS trực tiếp vào đường lên nên không cần card âm thanh trên host.
+- Telegram chỉ gọi 1:1; người nhận phải bấm nghe máy thì TTS mới phát.
+- Chưa hỗ trợ gọi đồng thời nhiều người.
+- Discord dùng token tài khoản người dùng (self-bot), trái Điều khoản Discord và có thể bị khóa tài khoản. Chỉ nên dùng tài khoản phụ.
+- Discord và Signal không hỗ trợ gọi thoại; `ring` chỉ gửi voice TTS lặp.
+- LINE không hỗ trợ `send_tts`, `call` hoặc `ring`; ảnh phải là URL HTTPS công khai.
+- Zalo không hỗ trợ `ring`; `call` chỉ đổ chuông và phát TTS một chiều.
+- SIM chỉ gọi thoại, không gửi tin nhắn, ảnh hoặc TTS qua API. Cước phí do nhà mạng tính.
+- Tự động gọi/nhắn tin có thể vi phạm điều khoản nền tảng và gây cước phí; chỉ gửi đến người đã đồng ý.
