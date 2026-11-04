@@ -79,7 +79,7 @@ send_tts:
 
 call:
   name: Gọi và phát TTS
-  description: Gọi P2P Telegram, gọi Zalo một chiều hoặc gọi thoại thật qua SIM A7670C-LANS. Telegram/SIM/Zalo chờ người nhận nghe máy rồi phát nội dung TTS; Zalo không truyền thoại hai chiều.
+  description: Gọi P2P Telegram, gọi Zalo một chiều hoặc gọi số qua SIM A7670C-LANS và phát TTS một chiều. Telegram/SIM/Zalo chờ người nhận nghe máy rồi phát nội dung TTS; SIM/Zalo không truyền mic/loa hai chiều.
   fields:
     to:
       name: Người nhận
