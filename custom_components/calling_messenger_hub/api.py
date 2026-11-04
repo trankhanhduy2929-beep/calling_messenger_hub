@@ -202,3 +202,37 @@ class TelegramVoipApi:
             "api/hangup",
             {"call_id": call_id, "account": account},
         )
+
+    async def async_trigger_alert(
+        self,
+        policy_id: str | None = None,
+        name: str | None = None,
+        message: str | None = None,
+        severity: str | None = None,
+        source: str = "",
+        dedupe_key: str = "",
+    ) -> dict[str, Any]:
+        return await self._request(
+            "POST",
+            "api/alerts/trigger",
+            {
+                "policy_id": policy_id,
+                "name": name,
+                "message": message,
+                "severity": severity,
+                "source": source,
+                "dedupe_key": dedupe_key,
+            },
+        )
+
+    async def async_alert_action(
+        self,
+        alert_id: str,
+        action: str,
+        by: str = "",
+    ) -> dict[str, Any]:
+        return await self._request(
+            "POST",
+            f"api/alerts/{alert_id}/{action}",
+            {"by": by},
+        )

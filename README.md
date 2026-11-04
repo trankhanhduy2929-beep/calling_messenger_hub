@@ -1,6 +1,6 @@
 # Calling Messenger Hub for Home Assistant
 
-Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản `2.0.8` hỗ trợ tài khoản Telegram, Discord, Signal, LINE Official Account, Zalo cá nhân và SIM A7670C-LANS hoặc Quectel EC20/EC2x:
+Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản `2.1.0` hỗ trợ tài khoản Telegram, Discord, Signal, LINE Official Account, Zalo cá nhân và SIM A7670C-LANS hoặc Quectel EC20/EC2x:
 
 - gửi tin nhắn, ảnh và voice message bằng Edge TTS qua tài khoản đã thêm trong add-on;
 - gọi P2P 1:1 Telegram và phát TTS khi người nhận nghe máy;
@@ -10,7 +10,8 @@ Custom integration gọi add-on **Calling Messenger Hub** qua REST API. Bản `2
 - gửi tin nhắn, ảnh và voice TTS Zalo qua tài khoản `zl_...`;
 - gọi Zalo một chiều và phát TTS sau khi người nhận nghe máy;
 - gọi thoại thật qua SIM A7670C-LANS hoặc Quectel EC20/EC2x và phát TTS khi người nhận nghe máy;
-- theo dõi số tài khoản online và số cuộc gọi/chuông đang hoạt động.
+- theo dõi số tài khoản online và số cuộc gọi/chuông đang hoạt động;
+- kích hoạt chính sách báo động, xác nhận/đánh dấu đã xử lý/hủy và theo dõi số báo động đang chạy hoặc chưa xác nhận.
 
 Integration này **không chứa phần đăng nhập**. Cần cài add-on
 `calling_messenger_hub` trước, sau đó nhập URL và API token của add-on.
@@ -18,11 +19,15 @@ Integration này **không chứa phần đăng nhập**. Cần cài add-on
 > Chưa kiểm thử với tài khoản Telegram, Discord, Signal, LINE hoặc mô-đun
 > A7670C-LANS/EC20 thật, hoặc Home Assistant runtime thật. Gửi voice TTS Zalo đã
 > được xác nhận trên tài khoản thật; gọi Zalo một chiều mới được kiểm thử bằng mock.
+> Trung tâm báo động mới được kiểm thử bằng mock/pytest, chưa chạy leo thang thật qua
+> dịch vụ/SIM.
 > Tự động gọi/nhắn tin có
 > thể vi phạm điều khoản nền tảng và gây cước phí SIM; chỉ dùng tài khoản phụ
 > và người nhận đã đồng ý.
 
 ## Nâng cấp từ Telegram VoIP Notifier
+
+Bản `2.1.0` tương thích add-on `0.16.0`: thêm service `trigger_alert`, `acknowledge_alert`, `resolve_alert`, `cancel_alert` và sensor `alerts_active`, `alerts_unacknowledged`. Không đổi cấu hình.
 
 Bản `2.0.8` cập nhật mô tả và ví dụ cho đầy đủ tính năng Zalo: nhắn tin, gửi ảnh, gửi voice TTS và gọi một chiều phát TTS sau khi nghe máy. Integration tương thích add-on `0.15.5`; không đổi cấu hình hay mã gọi API.
 
@@ -162,10 +167,35 @@ data:
 
 Bỏ `call_id` để kết thúc mọi cuộc gọi/chuông đang hoạt động.
 
+### `calling_messenger_hub.trigger_alert`
+
+```yaml
+action: calling_messenger_hub.trigger_alert
+data:
+  policy_id: "a1b2c3d4e5"
+  source: "automation cua_chinh"
+  dedupe_key: "cua-chinh"
+```
+
+Truyền `policy_id` hoặc `name` (tên chính xác của chính sách). `message` ghi đè lời thoại; `severity` nhận `info`, `warning`, `critical`. Báo động đang chạy cùng `dedupe_key` không tạo thêm.
+
+### `calling_messenger_hub.acknowledge_alert`
+
+```yaml
+action: calling_messenger_hub.acknowledge_alert
+data:
+  alert_id: "f6e5d4c3b2a1"
+  by: "telegram:owner"
+```
+
+Xác nhận đã nhận báo động và dừng leo thang. `resolve_alert` đánh dấu đã xử lý; `cancel_alert` dừng chuỗi và hủy cuộc gọi/chuông hiện tại. Cả ba service nhận `alert_id` bắt buộc và `by` tùy chọn.
+
 ## Sensor
 
 - `sensor.calling_messenger_hub_accounts_online`
 - `sensor.calling_messenger_hub_active_calls`
+- `sensor.calling_messenger_hub_alerts_active`
+- `sensor.calling_messenger_hub_alerts_unacknowledged`
 
 ## Ghi chú
 

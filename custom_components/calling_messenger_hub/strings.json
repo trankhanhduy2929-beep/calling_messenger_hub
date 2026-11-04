@@ -42,6 +42,12 @@
       },
       "active_calls": {
         "name": "Cuộc gọi đang hoạt động"
+      },
+      "alerts_active": {
+        "name": "Báo động đang chạy"
+      },
+      "alerts_unacknowledged": {
+        "name": "Báo động chưa xác nhận"
       }
     }
   }

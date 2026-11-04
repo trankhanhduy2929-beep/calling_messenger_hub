@@ -23,6 +23,8 @@ async def async_setup_entry(
         [
             AccountsOnlineSensor(coordinator, entry),
             ActiveCallsSensor(coordinator, entry),
+            AlertsActiveSensor(coordinator, entry),
+            AlertsUnacknowledgedSensor(coordinator, entry),
         ]
     )
 
@@ -108,3 +110,51 @@ class ActiveCallsSensor(TelegramVoipSensor):
             "stats": self.coordinator.data.get("stats", {}),
             "tts": self.coordinator.data.get("tts", {}),
         }
+
+class AlertsActiveSensor(TelegramVoipSensor):
+    _attr_translation_key = "alerts_active"
+    _attr_icon = "mdi:alert-circle"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: TelegramVoipCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_alerts_active"
+
+    @property
+    def native_value(self) -> int:
+        return int(self.coordinator.data.get("alerts_active", 0))
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return {"alerts": self.coordinator.data.get("alerts", [])}
+
+
+class AlertsUnacknowledgedSensor(TelegramVoipSensor):
+    _attr_translation_key = "alerts_unacknowledged"
+    _attr_icon = "mdi:alert-decagram"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: TelegramVoipCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_alerts_unacknowledged"
+
+    @property
+    def native_value(self) -> int:
+        return int(self.coordinator.data.get("alerts_unacknowledged", 0))
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        alerts = [
+            item
+            for item in self.coordinator.data.get("alerts", [])
+            if not item.get("acknowledged_at")
+        ]
+        return {"alerts": alerts}

@@ -236,3 +236,87 @@ send_photo:
       default: false
       selector:
         boolean:
+
+trigger_alert:
+  name: Kích hoạt báo động
+  description: Chạy một chính sách báo động đã lưu. Truyền policy_id hoặc tên chính sách chính xác.
+  fields:
+    policy_id:
+      name: ID chính sách
+      description: ID chính sách trong trung tâm báo động. Dùng thay cho tên khi cần ổn định.
+      selector:
+        text:
+    name:
+      name: Tên chính sách
+      description: Tên chính sách chính xác nếu không có policy_id.
+      selector:
+        text:
+    message:
+      name: Lời thoại ghi đè
+      description: Ghi đè lời thoại mặc định của chính sách.
+      selector:
+        text:
+          multiline: true
+    severity:
+      name: Mức ưu tiên
+      selector:
+        select:
+          options:
+            - label: Thông tin
+              value: info
+            - label: Cảnh báo
+              value: warning
+            - label: Nghiêm trọng
+              value: critical
+    source:
+      name: Nguồn
+      description: Tên automation hoặc hệ thống tạo báo động.
+      selector:
+        text:
+    dedupe_key:
+      name: Khóa chống trùng
+      description: Báo động đang chạy có cùng khóa sẽ không tạo thêm.
+      selector:
+        text:
+
+acknowledge_alert:
+  name: Xác nhận báo động
+  description: Xác nhận đã nhận báo động và dừng leo thang.
+  fields:
+    alert_id:
+      name: ID báo động
+      required: true
+      selector:
+        text:
+    by:
+      name: Người xác nhận
+      selector:
+        text:
+
+resolve_alert:
+  name: Đánh dấu báo động đã xử lý
+  description: Đánh dấu báo động đã xử lý và dừng chuỗi cuộc gọi.
+  fields:
+    alert_id:
+      name: ID báo động
+      required: true
+      selector:
+        text:
+    by:
+      name: Người xử lý
+      selector:
+        text:
+
+cancel_alert:
+  name: Hủy báo động
+  description: Hủy báo động đang chạy và dừng cuộc gọi hoặc chuông hiện tại.
+  fields:
+    alert_id:
+      name: ID báo động
+      required: true
+      selector:
+        text:
+    by:
+      name: Người hủy
+      selector:
+        text:

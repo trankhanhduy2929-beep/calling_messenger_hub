@@ -19,17 +19,24 @@ from .api import (
 )
 from .const import (
     ATTR_ACCOUNT,
+    ATTR_ALERT_ID,
     ATTR_ATTEMPTS,
+    ATTR_BY,
     ATTR_CALL_ID,
     ATTR_CAPTION,
+    ATTR_DEDUPE_KEY,
     ATTR_IMAGE,
     ATTR_INTERVAL,
     ATTR_MESSAGE,
+    ATTR_NAME,
     ATTR_PARSE_MODE,
+    ATTR_POLICY_ID,
     ATTR_RATE,
     ATTR_RING_TIMEOUT,
     ATTR_SEND_MESSAGE,
+    ATTR_SEVERITY,
     ATTR_SILENT,
+    ATTR_SOURCE,
     ATTR_TO,
     ATTR_VOICE,
     ATTR_WAIT,
@@ -41,12 +48,16 @@ from .const import (
     DEFAULT_URL,
     DOMAIN,
     LEGACY_DEFAULT_URL,
+    SERVICE_ACKNOWLEDGE_ALERT,
     SERVICE_CALL,
+    SERVICE_CANCEL_ALERT,
     SERVICE_HANGUP,
+    SERVICE_RESOLVE_ALERT,
     SERVICE_RING,
     SERVICE_SEND_MESSAGE,
     SERVICE_SEND_PHOTO,
     SERVICE_SEND_TTS,
+    SERVICE_TRIGGER_ALERT,
 )
 from .coordinator import TelegramVoipCoordinator
 
@@ -131,6 +142,24 @@ HANGUP_SCHEMA = vol.Schema(
     {
         vol.Optional(ATTR_CALL_ID): _text(1, 64),
         vol.Optional(ATTR_ACCOUNT): _text(1, 64),
+    }
+)
+
+TRIGGER_ALERT_SCHEMA = vol.Schema(
+    {
+        vol.Optional(ATTR_POLICY_ID): _text(1, 32),
+        vol.Optional(ATTR_NAME): _text(1, 80),
+        vol.Optional(ATTR_MESSAGE): _text(1, 2000),
+        vol.Optional(ATTR_SEVERITY): vol.In(["info", "warning", "critical"]),
+        vol.Optional(ATTR_SOURCE): _text(1, 80),
+        vol.Optional(ATTR_DEDUPE_KEY): _text(1, 128),
+    }
+)
+
+ALERT_ACTION_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_ALERT_ID): _text(1, 64),
+        vol.Optional(ATTR_BY): _text(1, 80),
     }
 )
 
@@ -245,6 +274,44 @@ async def _handle_hangup(call: ServiceCall) -> dict[str, Any]:
         _raise_api_error(err)
 
 
+async def _handle_trigger_alert(call: ServiceCall) -> dict[str, Any]:
+    policy_id = call.data.get(ATTR_POLICY_ID)
+    name = call.data.get(ATTR_NAME)
+    if not policy_id and not name:
+        raise HomeAssistantError("Provide policy_id or name for trigger_alert")
+    try:
+        api = _get_api(call.hass)
+        return await api.async_trigger_alert(
+            policy_id=policy_id,
+            name=name,
+            message=call.data.get(ATTR_MESSAGE),
+            severity=call.data.get(ATTR_SEVERITY),
+            source=call.data.get(ATTR_SOURCE, ""),
+            dedupe_key=call.data.get(ATTR_DEDUPE_KEY, ""),
+        )
+    except TelegramVoipApiError as err:
+        _raise_api_error(err)
+
+async def _handle_alert_action(call: ServiceCall, action: str) -> dict[str, Any]:
+    try:
+        api = _get_api(call.hass)
+        return await api.async_alert_action(
+            alert_id=call.data[ATTR_ALERT_ID],
+            action=action,
+            by=call.data.get(ATTR_BY, ""),
+        )
+    except TelegramVoipApiError as err:
+        _raise_api_error(err)
+
+async def _handle_acknowledge_alert(call: ServiceCall) -> dict[str, Any]:
+    return await _handle_alert_action(call, "acknowledge")
+
+async def _handle_resolve_alert(call: ServiceCall) -> dict[str, Any]:
+    return await _handle_alert_action(call, "resolve")
+
+async def _handle_cancel_alert(call: ServiceCall) -> dict[str, Any]:
+    return await _handle_alert_action(call, "cancel")
+
 def _async_register_services(hass: HomeAssistant) -> None:
     if hass.services.has_service(DOMAIN, SERVICE_SEND_MESSAGE):
         return
@@ -288,6 +355,34 @@ def _async_register_services(hass: HomeAssistant) -> None:
         SERVICE_HANGUP,
         _handle_hangup,
         schema=HANGUP_SCHEMA,
+        supports_response=SupportsResponse.OPTIONAL,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_TRIGGER_ALERT,
+        _handle_trigger_alert,
+        schema=TRIGGER_ALERT_SCHEMA,
+        supports_response=SupportsResponse.OPTIONAL,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_ACKNOWLEDGE_ALERT,
+        _handle_acknowledge_alert,
+        schema=ALERT_ACTION_SCHEMA,
+        supports_response=SupportsResponse.OPTIONAL,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_RESOLVE_ALERT,
+        _handle_resolve_alert,
+        schema=ALERT_ACTION_SCHEMA,
+        supports_response=SupportsResponse.OPTIONAL,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_CANCEL_ALERT,
+        _handle_cancel_alert,
+        schema=ALERT_ACTION_SCHEMA,
         supports_response=SupportsResponse.OPTIONAL,
     )
 
