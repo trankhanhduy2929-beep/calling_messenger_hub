@@ -192,6 +192,42 @@ class TelegramVoipApi:
             timeout=120,
         )
 
+    async def async_sim_dial(
+        self,
+        account: str,
+        to: str,
+        ring_timeout: int | None = None,
+    ) -> dict[str, Any]:
+        return await self._request(
+            "POST",
+            f"api/sim/accounts/{account}/dial",
+            {"to": to, "ring_timeout": ring_timeout},
+            timeout=60,
+        )
+
+    async def async_sim_answer(
+        self,
+        account: str,
+        call_id: str | None = None,
+    ) -> dict[str, Any]:
+        return await self._request(
+            "POST",
+            f"api/sim/accounts/{account}/answer",
+            {"call_id": call_id},
+        )
+
+    async def async_sim_send_dtmf(
+        self,
+        account: str,
+        digits: str,
+    ) -> dict[str, Any]:
+        return await self._request(
+            "POST",
+            f"api/sim/accounts/{account}/dtmf",
+            {"digits": digits},
+            timeout=60,
+        )
+
     async def async_hangup(
         self,
         call_id: str | None = None,

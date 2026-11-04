@@ -5,7 +5,7 @@ Custom integration kết nối Home Assistant với add-on **Calling Messenger H
 ## Tính năng
 
 - Gửi tin nhắn, ảnh và voice message bằng Edge TTS.
-- Gọi P2P Telegram, gọi Zalo một chiều và gọi thoại thật qua SIM 4G.
+- Gọi P2P Telegram, gọi Zalo một chiều và gọi thoại thật qua SIM 4G; gọi thủ công, nghe máy và gửi DTMF qua SIM.
 - Gọi lặp hoặc gửi voice TTS lặp làm chuông báo động.
 - Kích hoạt chính sách báo động, xác nhận, đánh dấu đã xử lý hoặc hủy.
 - Theo dõi tài khoản online, cuộc gọi, chuông và báo động.
@@ -53,7 +53,7 @@ data:
   message: "Cảnh báo từ Home Assistant"
 ```
 
-Hỗ trợ Telegram, Discord, Signal, LINE và Zalo. SIM không hỗ trợ gửi tin nhắn.
+Hỗ trợ Telegram, Discord, Signal, LINE, Zalo và SIM. Với SIM, nội dung được gửi dưới dạng SMS.
 
 ### Gửi voice TTS
 
@@ -107,6 +107,39 @@ data:
 ```
 
 Bỏ `message` nếu chỉ muốn đổ chuông. Zalo chỉ truyền TTS một chiều, không nghe mic.
+
+### Gọi thủ công qua SIM
+
+```yaml
+action: calling_messenger_hub.dial
+data:
+  account: "sm_..."
+  to: "+84912345678"
+  ring_timeout: 45
+```
+
+Cuộc gọi được giữ cho đến khi gọi `hangup` hoặc đầu bên kia kết thúc. `ring_timeout` là tùy chọn, từ 10 đến 180 giây.
+
+### Nghe máy cuộc gọi SIM
+
+```yaml
+action: calling_messenger_hub.answer
+data:
+  account: "sm_..."
+```
+
+Dùng khi mô-đun SIM đang có cuộc gọi đến đổ chuông. Có thể truyền thêm `call_id` để gắn với bản ghi cuộc gọi cụ thể.
+
+### Gửi DTMF trong cuộc gọi SIM
+
+```yaml
+action: calling_messenger_hub.send_dtmf
+data:
+  account: "sm_..."
+  digits: "1#"
+```
+
+Gửi các phím `0-9`, `*`, `#`, `A-D` vào cuộc gọi đang hoạt động, ví dụ để nhập menu tổng đài.
 
 ### Chuông báo động
 
@@ -172,5 +205,6 @@ data:
 - Discord và Signal không hỗ trợ gọi thoại; `ring` chỉ gửi voice TTS lặp.
 - LINE không hỗ trợ `send_tts`, `call` hoặc `ring`; ảnh phải là URL HTTPS công khai.
 - Zalo không hỗ trợ `ring`; `call` chỉ đổ chuông và phát TTS một chiều.
-- SIM chỉ gọi thoại, không gửi tin nhắn, ảnh hoặc TTS qua API. Cước phí do nhà mạng tính.
+- SIM hỗ trợ gọi, nghe máy, gửi DTMF và SMS; không gửi ảnh hoặc TTS như tin nhắn. Cước phí do nhà mạng tính.
+- Âm thanh mic/loa hai chiều của SIM chưa truyền qua Home Assistant; add-on điều khiển cuộc gọi qua lệnh AT. Cần USB audio/ALSA trên host nếu muốn nghe nói trực tiếp.
 - Tự động gọi/nhắn tin có thể vi phạm điều khoản nền tảng và gây cước phí; chỉ gửi đến người đã đồng ý.

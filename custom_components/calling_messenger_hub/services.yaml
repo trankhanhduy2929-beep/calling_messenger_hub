@@ -1,23 +1,23 @@
 send_message:
   name: Gửi tin nhắn
-  description: Gửi tin nhắn văn bản qua Telegram, Discord, Signal, LINE Official Account hoặc Zalo cá nhân. SIM A7670C-LANS không hỗ trợ tin nhắn.
+  description: Gửi tin nhắn văn bản hoặc SMS qua Telegram, Discord, Signal, LINE Official Account, Zalo cá nhân hoặc SIM 4G.
   fields:
     to:
       name: Người nhận
-      description: Telegram dùng username, số điện thoại hoặc ID; Discord dùng ID kênh/người dùng, #ten-kenh hoặc @username; Signal dùng số E.164, group.* hoặc username; LINE dùng user/group/room ID (U.../C.../R...); Zalo dùng UID người dùng hoặc ID nhóm.
+      description: Telegram dùng username, số điện thoại hoặc ID; Discord dùng ID kênh/người dùng, #ten-kenh hoặc @username; Signal dùng số E.164, group.* hoặc username; LINE dùng user/group/room ID (U.../C.../R...); Zalo dùng UID người dùng hoặc ID nhóm; SIM dùng số điện thoại.
       required: true
       selector:
         text:
     message:
       name: Nội dung
-      description: Nội dung tin nhắn.
+      description: Nội dung tin nhắn. SMS dài được tự chia thành nhiều phần, tối đa 1000 ký tự.
       required: true
       selector:
         text:
           multiline: true
     account:
       name: Tài khoản gửi
-      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...), ID LINE (ln_...) hoặc ID Zalo (zl_...). Bỏ trống để add-on tự chọn tài khoản online; nên chọn rõ ID khi có nhiều dịch vụ. ID SIM (sm_...) bị từ chối vì SIM chỉ gọi thoại.
+      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...), ID LINE (ln_...), ID Zalo (zl_...) hoặc ID SIM (sm_...). Bỏ trống để add-on tự chọn tài khoản online; nên chọn rõ ID khi có nhiều dịch vụ. SIM gửi SMS đến số điện thoại.
       selector:
         text:
     parse_mode:
@@ -59,7 +59,7 @@ send_tts:
           multiline: true
     account:
       name: Tài khoản gửi
-      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...), ID LINE (ln_...) hoặc ID Zalo (zl_...). Bỏ trống để add-on tự chọn tài khoản online; nên chọn rõ ID khi có nhiều dịch vụ. ID SIM (sm_...) bị từ chối vì SIM chỉ gọi thoại.
+      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...), ID LINE (ln_...) hoặc ID Zalo (zl_...). Bỏ trống để add-on tự chọn tài khoản online; nên chọn rõ ID khi có nhiều dịch vụ. ID SIM (sm_...) chỉ hỗ trợ gọi thoại và SMS.
       selector:
         text:
     voice:
@@ -204,6 +204,64 @@ hangup:
       selector:
         text:
 
+dial:
+  name: Gọi thủ công qua SIM
+  description: Gọi một số điện thoại qua mô-đun SIM 4G và giữ cuộc gọi cho đến khi gọi hangup hoặc đầu bên kia kết thúc. Không phát TTS.
+  fields:
+    to:
+      name: Số điện thoại
+      description: Số cần gọi. Dùng số Việt Nam hoặc định dạng quốc tế +84.
+      required: true
+      selector:
+        text:
+    account:
+      name: Tài khoản SIM
+      description: ID SIM (sm_...) hoặc tên/số SIM cần dùng để gọi.
+      required: true
+      selector:
+        text:
+    ring_timeout:
+      name: Thời gian đổ chuông
+      description: Giây chờ người nhận nghe máy. Bỏ trống dùng mặc định của add-on.
+      selector:
+        number:
+          min: 10
+          max: 180
+          unit_of_measurement: s
+
+answer:
+  name: Nghe máy cuộc gọi SIM
+  description: Trả lời cuộc gọi đến đang đổ chuông trên mô-đun SIM 4G. Dùng kèm tự động hóa CLIP để thông báo cuộc gọi đến.
+  fields:
+    account:
+      name: Tài khoản SIM
+      description: ID SIM (sm_...) hoặc tên/số SIM đang có cuộc gọi đến.
+      required: true
+      selector:
+        text:
+    call_id:
+      name: ID cuộc gọi
+      description: Tùy chọn, dùng khi cần gắn với một bản ghi cuộc gọi cụ thể.
+      selector:
+        text:
+
+send_dtmf:
+  name: Gửi DTMF trong cuộc gọi SIM
+  description: Gửi phím DTMF (0-9, *, #, A-D) vào cuộc gọi SIM đang hoạt động, ví dụ để nhập mã menu tổng đài.
+  fields:
+    account:
+      name: Tài khoản SIM
+      description: ID SIM (sm_...) hoặc tên/số SIM đang có cuộc gọi hoạt động.
+      required: true
+      selector:
+        text:
+    digits:
+      name: Chuỗi phím
+      description: Các phím cần gửi, tối đa 32 ký tự. Ví dụ 1#, 1234 hoặc *100#.
+      required: true
+      selector:
+        text:
+
 send_photo:
   name: Gửi ảnh
   description: Gửi ảnh qua Telegram, Discord, Signal hoặc Zalo từ URL, dữ liệu ảnh hoặc file trong /data/media; LINE chỉ nhận URL HTTPS công khai; SIM không hỗ trợ ảnh.
@@ -222,7 +280,7 @@ send_photo:
         text:
     account:
       name: Tài khoản gửi
-      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...), ID LINE (ln_...) hoặc ID Zalo (zl_...). Bỏ trống để add-on tự chọn tài khoản online; nên chọn rõ ID khi có nhiều dịch vụ. ID SIM (sm_...) bị từ chối vì SIM chỉ gọi thoại.
+      description: ID, số điện thoại hoặc tên tài khoản Telegram, ID Discord (dc_...), ID Signal (sg_...), ID LINE (ln_...) hoặc ID Zalo (zl_...). Bỏ trống để add-on tự chọn tài khoản online; nên chọn rõ ID khi có nhiều dịch vụ. ID SIM (sm_...) chỉ hỗ trợ gọi thoại và SMS.
       selector:
         text:
     caption:

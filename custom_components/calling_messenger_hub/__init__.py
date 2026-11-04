@@ -25,6 +25,7 @@ from .const import (
     ATTR_CALL_ID,
     ATTR_CAPTION,
     ATTR_DEDUPE_KEY,
+    ATTR_DIGITS,
     ATTR_IMAGE,
     ATTR_INTERVAL,
     ATTR_MESSAGE,
@@ -49,11 +50,14 @@ from .const import (
     DOMAIN,
     LEGACY_DEFAULT_URL,
     SERVICE_ACKNOWLEDGE_ALERT,
+    SERVICE_ANSWER,
     SERVICE_CALL,
     SERVICE_CANCEL_ALERT,
+    SERVICE_DIAL,
     SERVICE_HANGUP,
     SERVICE_RESOLVE_ALERT,
     SERVICE_RING,
+    SERVICE_SEND_DTMF,
     SERVICE_SEND_MESSAGE,
     SERVICE_SEND_PHOTO,
     SERVICE_SEND_TTS,
@@ -142,6 +146,28 @@ HANGUP_SCHEMA = vol.Schema(
     {
         vol.Optional(ATTR_CALL_ID): _text(1, 64),
         vol.Optional(ATTR_ACCOUNT): _text(1, 64),
+    }
+)
+
+SIM_DIAL_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_TO): _text(1, 32),
+        vol.Required(ATTR_ACCOUNT): _text(1, 64),
+        vol.Optional(ATTR_RING_TIMEOUT): _int_range(10, 180),
+    }
+)
+
+SIM_ANSWER_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_ACCOUNT): _text(1, 64),
+        vol.Optional(ATTR_CALL_ID): _text(1, 64),
+    }
+)
+
+SIM_DTMF_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_ACCOUNT): _text(1, 64),
+        vol.Required(ATTR_DIGITS): _text(1, 32),
     }
 )
 
@@ -274,6 +300,37 @@ async def _handle_hangup(call: ServiceCall) -> dict[str, Any]:
         _raise_api_error(err)
 
 
+async def _handle_dial(call: ServiceCall) -> dict[str, Any]:
+    try:
+        api = _get_api(call.hass)
+        return await api.async_sim_dial(
+            account=call.data[ATTR_ACCOUNT],
+            to=call.data[ATTR_TO],
+            ring_timeout=call.data.get(ATTR_RING_TIMEOUT),
+        )
+    except TelegramVoipApiError as err:
+        _raise_api_error(err)
+
+async def _handle_answer(call: ServiceCall) -> dict[str, Any]:
+    try:
+        api = _get_api(call.hass)
+        return await api.async_sim_answer(
+            account=call.data[ATTR_ACCOUNT],
+            call_id=call.data.get(ATTR_CALL_ID),
+        )
+    except TelegramVoipApiError as err:
+        _raise_api_error(err)
+
+async def _handle_send_dtmf(call: ServiceCall) -> dict[str, Any]:
+    try:
+        api = _get_api(call.hass)
+        return await api.async_sim_send_dtmf(
+            account=call.data[ATTR_ACCOUNT],
+            digits=call.data[ATTR_DIGITS],
+        )
+    except TelegramVoipApiError as err:
+        _raise_api_error(err)
+
 async def _handle_trigger_alert(call: ServiceCall) -> dict[str, Any]:
     policy_id = call.data.get(ATTR_POLICY_ID)
     name = call.data.get(ATTR_NAME)
@@ -355,6 +412,27 @@ def _async_register_services(hass: HomeAssistant) -> None:
         SERVICE_HANGUP,
         _handle_hangup,
         schema=HANGUP_SCHEMA,
+        supports_response=SupportsResponse.OPTIONAL,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_DIAL,
+        _handle_dial,
+        schema=SIM_DIAL_SCHEMA,
+        supports_response=SupportsResponse.OPTIONAL,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_ANSWER,
+        _handle_answer,
+        schema=SIM_ANSWER_SCHEMA,
+        supports_response=SupportsResponse.OPTIONAL,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SEND_DTMF,
+        _handle_send_dtmf,
+        schema=SIM_DTMF_SCHEMA,
         supports_response=SupportsResponse.OPTIONAL,
     )
     hass.services.async_register(
