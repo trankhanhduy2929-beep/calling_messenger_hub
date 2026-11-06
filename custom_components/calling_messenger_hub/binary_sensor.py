@@ -11,6 +11,7 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .accounts import AccountEntityRegistry, account_by_id, account_device_info
 from .coordinator import TelegramVoipCoordinator
 from .entity import TelegramVoipEntity
 
@@ -30,6 +31,17 @@ async def async_setup_entry(
             UpdateAvailableBinarySensor(coordinator, entry),
         ]
     )
+    registry = AccountEntityRegistry(
+        coordinator,
+        async_add_entities,
+        lambda account: [
+            (
+                f"{account.get('id')}:online",
+                AccountOnlineBinarySensor(coordinator, entry, account),
+            )
+        ],
+    )
+    entry.async_on_unload(registry.async_stop)
 
 class TelegramVoipBinarySensor(TelegramVoipEntity, BinarySensorEntity):
     pass
@@ -178,4 +190,52 @@ class UpdateAvailableBinarySensor(TelegramVoipBinarySensor):
             "checked_at": update.get("checked_at"),
             "url": update.get("url"),
             "error": update.get("error"),
+        }
+
+
+class AccountOnlineBinarySensor(TelegramVoipBinarySensor):
+    _attr_translation_key = "account_online"
+    _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
+
+    def __init__(
+        self,
+        coordinator: TelegramVoipCoordinator,
+        entry: ConfigEntry,
+        account: dict[str, Any],
+    ) -> None:
+        super().__init__(
+            coordinator,
+            entry,
+            device_info=account_device_info(coordinator, entry, account),
+        )
+        self._account_id = str(account.get("id"))
+        self._attr_unique_id = f"{entry.entry_id}_{self._account_id}_online"
+
+    @property
+    def _account(self) -> dict[str, Any]:
+        return account_by_id(self.coordinator.data, self._account_id)
+
+    @property
+    def is_on(self) -> bool:
+        return self._account.get("state") == "online"
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        account = self._account
+        return {
+            "account_id": self._account_id,
+            "service": account.get("service"),
+            "phone": account.get("phone"),
+            "state": account.get("state"),
+            "driver": account.get("driver"),
+            "channel": account.get("channel"),
+            "network": account.get("network"),
+            "last_error": account.get("last_error"),
+            "last_seen_at": account.get("last_seen_at"),
+            "last_connected_at": account.get("last_connected_at"),
+            "latency_ms": account.get("latency_ms"),
+            "reconnect_attempts": account.get("reconnect_attempts"),
+            "next_retry_at": account.get("next_retry_at"),
+            "event_connected": account.get("event_connected"),
+            "event_error": account.get("event_error"),
         }

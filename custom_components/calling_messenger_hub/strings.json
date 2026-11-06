@@ -48,6 +48,18 @@
       },
       "alerts_unacknowledged": {
         "name": "Báo động chưa xác nhận"
+      },
+      "account_signal": {
+        "name": "Sóng SIM"
+      },
+      "account_carrier": {
+        "name": "Nhà mạng SIM"
+      },
+      "account_balance": {
+        "name": "Số dư SIM"
+      },
+      "account_expiry": {
+        "name": "Hạn dùng SIM"
       }
     },
     "binary_sensor": {
@@ -65,6 +77,9 @@
       },
       "update_available": {
         "name": "Có bản cập nhật"
+      },
+      "account_online": {
+        "name": "Trực tuyến"
       }
     },
     "button": {

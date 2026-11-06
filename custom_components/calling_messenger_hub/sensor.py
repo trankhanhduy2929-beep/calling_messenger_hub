@@ -4,9 +4,11 @@ from typing import Any
 
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import PERCENTAGE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .accounts import AccountEntityRegistry, account_by_id, account_device_info
 from .coordinator import TelegramVoipCoordinator
 from .entity import TelegramVoipEntity
 
@@ -25,6 +27,20 @@ async def async_setup_entry(
             AlertsUnacknowledgedSensor(coordinator, entry),
         ]
     )
+
+    def account_entities(account: dict[str, Any]) -> list[tuple[str, SensorEntity]]:
+        if account.get("service") != "sim":
+            return []
+        account_id = str(account.get("id"))
+        return [
+            (f"{account_id}:signal", AccountSignalSensor(coordinator, entry, account)),
+            (f"{account_id}:carrier", AccountCarrierSensor(coordinator, entry, account)),
+            (f"{account_id}:balance", AccountBalanceSensor(coordinator, entry, account)),
+            (f"{account_id}:expiry", AccountExpirySensor(coordinator, entry, account)),
+        ]
+
+    registry = AccountEntityRegistry(coordinator, async_add_entities, account_entities)
+    entry.async_on_unload(registry.async_stop)
 
 
 class TelegramVoipSensor(TelegramVoipEntity, SensorEntity):
@@ -141,3 +157,126 @@ class AlertsUnacknowledgedSensor(TelegramVoipSensor):
             if not item.get("acknowledged_at")
         ]
         return {"alerts": alerts}
+
+
+class AccountSensor(TelegramVoipSensor):
+    def __init__(
+        self,
+        coordinator: TelegramVoipCoordinator,
+        entry: ConfigEntry,
+        account: dict[str, Any],
+    ) -> None:
+        super().__init__(
+            coordinator,
+            entry,
+            device_info=account_device_info(coordinator, entry, account),
+        )
+        self._account_id = str(account.get("id"))
+
+    @property
+    def _account(self) -> dict[str, Any]:
+        return account_by_id(self.coordinator.data, self._account_id)
+
+
+class AccountSignalSensor(AccountSensor):
+    _attr_translation_key = "account_signal"
+    _attr_icon = "mdi:signal"
+    _attr_native_unit_of_measurement = PERCENTAGE
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: TelegramVoipCoordinator,
+        entry: ConfigEntry,
+        account: dict[str, Any],
+    ) -> None:
+        super().__init__(coordinator, entry, account)
+        self._attr_unique_id = f"{entry.entry_id}_{self._account_id}_signal"
+
+    @property
+    def native_value(self) -> int | None:
+        value = self._account.get("signal_percent")
+        if value is None:
+            return None
+        try:
+            return max(0, min(100, int(value)))
+        except (TypeError, ValueError):
+            return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        account = self._account
+        return {
+            "signal_dbm": account.get("signal_dbm"),
+            "signal_level": account.get("signal_level"),
+            "carrier": account.get("carrier"),
+            "network": account.get("network"),
+        }
+
+
+class AccountCarrierSensor(AccountSensor):
+    _attr_translation_key = "account_carrier"
+    _attr_icon = "mdi:sim"
+
+    def __init__(
+        self,
+        coordinator: TelegramVoipCoordinator,
+        entry: ConfigEntry,
+        account: dict[str, Any],
+    ) -> None:
+        super().__init__(coordinator, entry, account)
+        self._attr_unique_id = f"{entry.entry_id}_{self._account_id}_carrier"
+
+    @property
+    def native_value(self) -> str | None:
+        return str(self._account.get("carrier") or "")[:255] or None
+
+
+class AccountBalanceSensor(AccountSensor):
+    _attr_translation_key = "account_balance"
+    _attr_icon = "mdi:cash"
+
+    def __init__(
+        self,
+        coordinator: TelegramVoipCoordinator,
+        entry: ConfigEntry,
+        account: dict[str, Any],
+    ) -> None:
+        super().__init__(coordinator, entry, account)
+        self._attr_unique_id = f"{entry.entry_id}_{self._account_id}_balance"
+
+    @property
+    def native_value(self) -> str | None:
+        return str(self._account.get("balance") or "")[:255] or None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        account = self._account
+        return {
+            "balance_updated_at": account.get("balance_updated_at"),
+            "expiry": account.get("expiry"),
+        }
+
+
+class AccountExpirySensor(AccountSensor):
+    _attr_translation_key = "account_expiry"
+    _attr_icon = "mdi:calendar-clock"
+
+    def __init__(
+        self,
+        coordinator: TelegramVoipCoordinator,
+        entry: ConfigEntry,
+        account: dict[str, Any],
+    ) -> None:
+        super().__init__(coordinator, entry, account)
+        self._attr_unique_id = f"{entry.entry_id}_{self._account_id}_expiry"
+
+    @property
+    def native_value(self) -> str | None:
+        return str(self._account.get("expiry") or "")[:255] or None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return {
+            "balance_updated_at": self._account.get("balance_updated_at"),
+        }

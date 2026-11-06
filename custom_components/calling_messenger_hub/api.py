@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+from collections.abc import AsyncIterator
 from typing import Any
 
 import aiohttp
@@ -67,6 +69,39 @@ class TelegramVoipApi:
 
     async def async_status(self) -> dict[str, Any]:
         return await self._request("GET", "api/status")
+
+    async def async_stream_events(self) -> AsyncIterator[dict[str, Any]]:
+        headers = {"Authorization": f"Bearer {self._token}"}
+        timeout = aiohttp.ClientTimeout(total=None, connect=15, sock_read=45)
+        try:
+            async with self._session.get(
+                f"{self._url}/api/events/stream",
+                headers=headers,
+                timeout=timeout,
+            ) as response:
+                if response.status == 401:
+                    raise TelegramVoipAuthError("invalid API token")
+                if response.status >= 400:
+                    raise TelegramVoipApiError("event stream request failed")
+                async for raw_line in response.content:
+                    line = raw_line.decode("utf-8", "replace").rstrip("\r\n")
+                    if not line.startswith("data:"):
+                        continue
+                    payload = line[5:].strip()
+                    if not payload:
+                        continue
+                    try:
+                        event = json.loads(payload)
+                    except ValueError:
+                        continue
+                    if isinstance(event, dict):
+                        yield event
+        except TelegramVoipAuthError:
+            raise
+        except TelegramVoipApiError:
+            raise
+        except (aiohttp.ClientError, TimeoutError, OSError) as err:
+            raise TelegramVoipConnectionError(str(err)) from err
 
     async def async_accounts(self) -> list[dict[str, Any]]:
         data = await self._request("GET", "api/accounts")

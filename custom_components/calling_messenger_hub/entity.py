@@ -15,10 +15,11 @@ class TelegramVoipEntity(CoordinatorEntity[TelegramVoipCoordinator]):
         self,
         coordinator: TelegramVoipCoordinator,
         entry: ConfigEntry,
+        device_info: DeviceInfo | None = None,
     ) -> None:
         super().__init__(coordinator)
         self._entry = entry
-        self._attr_device_info = DeviceInfo(
+        self._attr_device_info = device_info or DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name="Calling Messenger Hub",
             manufacturer="apk-lab",

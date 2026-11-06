@@ -61,6 +61,7 @@ from .const import (
     SERVICE_TRIGGER_ALERT,
 )
 from .coordinator import TelegramVoipCoordinator
+from .stream import TelegramVoipEventStream
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -83,6 +84,7 @@ NOTIFY_ATTR_TITLE = "title"
 class TelegramVoipRuntime:
     api: TelegramVoipApi
     coordinator: TelegramVoipCoordinator
+    stream: TelegramVoipEventStream
 
 
 def _text(minimum: int = 1, maximum: int = 4096) -> Any:
@@ -461,15 +463,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         int(entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)),
     )
     await coordinator.async_config_entry_first_refresh()
-    entry.runtime_data = TelegramVoipRuntime(api=api, coordinator=coordinator)
+    stream = TelegramVoipEventStream(hass, entry, api, coordinator)
+    entry.runtime_data = TelegramVoipRuntime(
+        api=api,
+        coordinator=coordinator,
+        stream=stream,
+    )
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
     _async_register_services(hass)
     _async_register_notify_service(hass)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORM_LIST)
+    stream.async_start()
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    runtime = entry.runtime_data
+    if isinstance(runtime, TelegramVoipRuntime):
+        await runtime.stream.async_stop()
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORM_LIST)
     if unloaded:
         entry.runtime_data = None
