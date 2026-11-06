@@ -69,8 +69,12 @@
       "account_expiry": {
         "name": "Hạn dùng SIM"
       },
-      "event_stream_last_event": "Sự kiện SSE gần nhất",
-      "event_stream_reconnects": "Số lần kết nối lại SSE"
+      "event_stream_last_event": {
+        "name": "Sự kiện SSE gần nhất"
+      },
+      "event_stream_reconnects": {
+        "name": "Số lần kết nối lại SSE"
+      }
     },
     "binary_sensor": {
       "api_online": {
@@ -91,7 +95,9 @@
       "account_online": {
         "name": "Trực tuyến"
       },
-      "event_stream_connected": "Luồng SSE đã kết nối"
+      "event_stream_connected": {
+        "name": "Luồng SSE đã kết nối"
+      }
     },
     "button": {
       "refresh": {
@@ -100,7 +106,9 @@
       "check_update": {
         "name": "Kiểm tra cập nhật"
       },
-      "restart_event_stream": "Khởi động lại luồng SSE"
+      "restart_event_stream": {
+        "name": "Khởi động lại luồng SSE"
+      }
     },
     "switch": {
       "mqtt_bridge": {

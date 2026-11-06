@@ -69,8 +69,12 @@
       "account_expiry": {
         "name": "SIM expiry"
       },
-      "event_stream_last_event": "Last SSE event",
-      "event_stream_reconnects": "SSE reconnect count"
+      "event_stream_last_event": {
+        "name": "Last SSE event"
+      },
+      "event_stream_reconnects": {
+        "name": "SSE reconnect count"
+      }
     },
     "binary_sensor": {
       "api_online": {
@@ -91,7 +95,9 @@
       "account_online": {
         "name": "Online"
       },
-      "event_stream_connected": "SSE stream connected"
+      "event_stream_connected": {
+        "name": "SSE stream connected"
+      }
     },
     "button": {
       "refresh": {
@@ -100,7 +106,9 @@
       "check_update": {
         "name": "Check for updates"
       },
-      "restart_event_stream": "Restart SSE stream"
+      "restart_event_stream": {
+        "name": "Restart SSE stream"
+      }
     },
     "switch": {
       "mqtt_bridge": {
