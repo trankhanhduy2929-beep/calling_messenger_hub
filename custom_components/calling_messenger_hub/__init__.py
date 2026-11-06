@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any, NoReturn
 
 import voluptuous as vol
+from homeassistant.components.notify.const import NOTIFY_SERVICE_SCHEMA
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
@@ -63,7 +64,19 @@ from .coordinator import TelegramVoipCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORM_LIST = [Platform.SENSOR]
+PLATFORM_LIST = [
+    Platform.SENSOR,
+    Platform.BINARY_SENSOR,
+    Platform.BUTTON,
+    Platform.SWITCH,
+    Platform.EVENT,
+]
+NOTIFY_DOMAIN = "notify"
+NOTIFY_SERVICE = "calling_messenger_hub"
+NOTIFY_ATTR_DATA = "data"
+NOTIFY_ATTR_MESSAGE = "message"
+NOTIFY_ATTR_TARGET = "target"
+NOTIFY_ATTR_TITLE = "title"
 
 
 @dataclass(slots=True)
@@ -303,6 +316,36 @@ async def _handle_alert_action(call: ServiceCall, action: str) -> dict[str, Any]
     except TelegramVoipApiError as err:
         _raise_api_error(err)
 
+async def _handle_notify(call: ServiceCall) -> None:
+    data = call.data.get(NOTIFY_ATTR_DATA) or {}
+    if not isinstance(data, dict):
+        raise HomeAssistantError("notify data must be a dictionary")
+    target = call.data.get(NOTIFY_ATTR_TARGET) or []
+    recipients = data.get("to") or target
+    if isinstance(recipients, str):
+        recipients = [recipients]
+    recipients = [str(item).strip() for item in recipients if str(item).strip()]
+    if not recipients:
+        raise HomeAssistantError(
+            "Provide notify target or data.to for the Calling Messenger Hub"
+        )
+    message = str(call.data[NOTIFY_ATTR_MESSAGE])
+    title = call.data.get(NOTIFY_ATTR_TITLE)
+    if title:
+        message = f"{title}\n\n{message}"
+    api = _get_api(call.hass)
+    try:
+        for recipient in recipients:
+            await api.async_send_message(
+                to=recipient,
+                message=message,
+                account=data.get("account"),
+                parse_mode=data.get("parse_mode"),
+                silent=bool(data.get("silent", False)),
+            )
+    except TelegramVoipApiError as err:
+        _raise_api_error(err)
+
 async def _handle_acknowledge_alert(call: ServiceCall) -> dict[str, Any]:
     return await _handle_alert_action(call, "acknowledge")
 
@@ -311,6 +354,16 @@ async def _handle_resolve_alert(call: ServiceCall) -> dict[str, Any]:
 
 async def _handle_cancel_alert(call: ServiceCall) -> dict[str, Any]:
     return await _handle_alert_action(call, "cancel")
+
+def _async_register_notify_service(hass: HomeAssistant) -> None:
+    if hass.services.has_service(NOTIFY_DOMAIN, NOTIFY_SERVICE):
+        return
+    hass.services.async_register(
+        NOTIFY_DOMAIN,
+        NOTIFY_SERVICE,
+        _handle_notify,
+        schema=NOTIFY_SERVICE_SCHEMA,
+    )
 
 def _async_register_services(hass: HomeAssistant) -> None:
     if hass.services.has_service(DOMAIN, SERVICE_SEND_MESSAGE):
@@ -411,6 +464,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry.runtime_data = TelegramVoipRuntime(api=api, coordinator=coordinator)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
     _async_register_services(hass)
+    _async_register_notify_service(hass)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORM_LIST)
     return True
 

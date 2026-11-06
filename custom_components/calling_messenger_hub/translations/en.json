@@ -49,6 +49,41 @@
       "alerts_unacknowledged": {
         "name": "Unacknowledged alerts"
       }
+    },
+    "binary_sensor": {
+      "api_online": {
+        "name": "API online"
+      },
+      "license_valid": {
+        "name": "License valid"
+      },
+      "mqtt_connected": {
+        "name": "MQTT connected"
+      },
+      "sim_problem": {
+        "name": "SIM problem"
+      },
+      "update_available": {
+        "name": "Update available"
+      }
+    },
+    "button": {
+      "refresh": {
+        "name": "Refresh status"
+      },
+      "check_update": {
+        "name": "Check for updates"
+      }
+    },
+    "switch": {
+      "mqtt_bridge": {
+        "name": "MQTT bridge"
+      }
+    },
+    "event": {
+      "activity": {
+        "name": "Activity"
+      }
     }
   }
 }

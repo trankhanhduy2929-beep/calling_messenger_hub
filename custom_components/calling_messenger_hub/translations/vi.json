@@ -49,6 +49,41 @@
       "alerts_unacknowledged": {
         "name": "Báo động chưa xác nhận"
       }
+    },
+    "binary_sensor": {
+      "api_online": {
+        "name": "Kết nối API"
+      },
+      "license_valid": {
+        "name": "License hợp lệ"
+      },
+      "mqtt_connected": {
+        "name": "MQTT đã kết nối"
+      },
+      "sim_problem": {
+        "name": "Sự cố SIM"
+      },
+      "update_available": {
+        "name": "Có bản cập nhật"
+      }
+    },
+    "button": {
+      "refresh": {
+        "name": "Làm mới trạng thái"
+      },
+      "check_update": {
+        "name": "Kiểm tra cập nhật"
+      }
+    },
+    "switch": {
+      "mqtt_bridge": {
+        "name": "Cầu nối MQTT"
+      }
+    },
+    "event": {
+      "activity": {
+        "name": "Hoạt động"
+      }
     }
   }
 }

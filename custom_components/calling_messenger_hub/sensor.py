@@ -5,12 +5,10 @@ from typing import Any
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
 from .coordinator import TelegramVoipCoordinator
+from .entity import TelegramVoipEntity
 
 
 async def async_setup_entry(
@@ -29,23 +27,8 @@ async def async_setup_entry(
     )
 
 
-class TelegramVoipSensor(CoordinatorEntity[TelegramVoipCoordinator], SensorEntity):
-    _attr_has_entity_name = True
-
-    def __init__(
-        self,
-        coordinator: TelegramVoipCoordinator,
-        entry: ConfigEntry,
-    ) -> None:
-        super().__init__(coordinator)
-        self._entry = entry
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry.entry_id)},
-            name="Calling Messenger Hub",
-            manufacturer="apk-lab",
-            model="Calling & messaging hub",
-            configuration_url=coordinator.api.base_url,
-        )
+class TelegramVoipSensor(TelegramVoipEntity, SensorEntity):
+    pass
 
 
 class AccountsOnlineSensor(TelegramVoipSensor):

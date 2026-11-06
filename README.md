@@ -5,10 +5,11 @@ Custom integration kết nối Home Assistant với add-on **Calling Messenger H
 ## Tính năng
 
 - Gửi tin nhắn, ảnh và voice message bằng Edge TTS.
-- Gọi P2P Telegram, gọi Zalo một chiều và gọi thoại thật qua SIM 4G; gọi thủ công, nghe máy và gửi DTMF qua SIM.
+- Gọi P2P Telegram, gọi Zalo một chiều và gọi thoại thật qua SIM 4G.
 - Gọi lặp hoặc gửi voice TTS lặp làm chuông báo động.
 - Kích hoạt chính sách báo động, xác nhận, đánh dấu đã xử lý hoặc hủy.
-- Theo dõi tài khoản online, cuộc gọi, chuông và báo động.
+- Theo dõi tài khoản online, cuộc gọi, chuông, báo động, license, MQTT và sức khỏe SIM.
+- Gửi thông báo qua `notify.calling_messenger_hub` và nhận event cuộc gọi/chuông/báo động.
 
 Integration không chứa phần đăng nhập. Cần cài và cấu hình add-on trước.
 
@@ -108,39 +109,6 @@ data:
 
 Bỏ `message` nếu chỉ muốn đổ chuông. Zalo chỉ truyền TTS một chiều, không nghe mic.
 
-### Gọi thủ công qua SIM
-
-```yaml
-action: calling_messenger_hub.dial
-data:
-  account: "sm_..."
-  to: "+84912345678"
-  ring_timeout: 45
-```
-
-Cuộc gọi được giữ cho đến khi gọi `hangup` hoặc đầu bên kia kết thúc. `ring_timeout` là tùy chọn, từ 10 đến 180 giây.
-
-### Nghe máy cuộc gọi SIM
-
-```yaml
-action: calling_messenger_hub.answer
-data:
-  account: "sm_..."
-```
-
-Dùng khi mô-đun SIM đang có cuộc gọi đến đổ chuông. Có thể truyền thêm `call_id` để gắn với bản ghi cuộc gọi cụ thể.
-
-### Gửi DTMF trong cuộc gọi SIM
-
-```yaml
-action: calling_messenger_hub.send_dtmf
-data:
-  account: "sm_..."
-  digits: "1#"
-```
-
-Gửi các phím `0-9`, `*`, `#`, `A-D` vào cuộc gọi đang hoạt động, ví dụ để nhập menu tổng đài.
-
 ### Chuông báo động
 
 ```yaml
@@ -190,12 +158,28 @@ data:
 - `resolve_alert`: đánh dấu đã xử lý.
 - `cancel_alert`: hủy báo động và dừng cuộc gọi hoặc chuông hiện tại.
 
-## Sensor
+## Entity và notify
 
-- `sensor.calling_messenger_hub_accounts_online`
-- `sensor.calling_messenger_hub_active_calls`
-- `sensor.calling_messenger_hub_alerts_active`
-- `sensor.calling_messenger_hub_alerts_unacknowledged`
+- `sensor`: tài khoản online, cuộc gọi, báo động đang chạy và chưa xác nhận.
+- `binary_sensor`: kết nối API, license, MQTT, sự cố SIM và bản cập nhật.
+- `button`: làm mới trạng thái và kiểm tra cập nhật.
+- `switch.calling_messenger_hub_mqtt_bridge`: bật/tắt cầu nối MQTT.
+- `event.calling_messenger_hub_activity`: cuộc gọi, chuông và báo động mới.
+
+Gửi notify:
+
+```yaml
+action: notify.calling_messenger_hub
+data:
+  title: "Home Assistant"
+  message: "Cửa chính đang mở."
+  target:
+    - "@username"
+  data:
+    account: "+84901234567"
+```
+
+`target` hoặc `data.to` là người nhận. `data` hỗ trợ thêm `account`, `parse_mode` và `silent`.
 
 ## Ghi chú
 
@@ -205,6 +189,6 @@ data:
 - Discord và Signal không hỗ trợ gọi thoại; `ring` chỉ gửi voice TTS lặp.
 - LINE không hỗ trợ `send_tts`, `call` hoặc `ring`; ảnh phải là URL HTTPS công khai.
 - Zalo không hỗ trợ `ring`; `call` chỉ đổ chuông và phát TTS một chiều.
-- SIM hỗ trợ gọi, nghe máy, gửi DTMF và SMS; không gửi ảnh hoặc TTS như tin nhắn. Cước phí do nhà mạng tính.
+- SIM hỗ trợ gọi cảnh báo, nghe máy, gửi DTMF và SMS trong add-on; integration chỉ gửi tin, gọi cảnh báo và chuông. Cước phí do nhà mạng tính.
 - Âm thanh mic/loa hai chiều của SIM chưa truyền qua Home Assistant; add-on điều khiển cuộc gọi qua lệnh AT. Cần USB audio/ALSA trên host nếu muốn nghe nói trực tiếp.
 - Tự động gọi/nhắn tin có thể vi phạm điều khoản nền tảng và gây cước phí; chỉ gửi đến người đã đồng ý.

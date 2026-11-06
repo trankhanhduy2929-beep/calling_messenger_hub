@@ -236,3 +236,35 @@ class TelegramVoipApi:
             f"api/alerts/{alert_id}/{action}",
             {"by": by},
         )
+
+    async def async_config(self) -> dict[str, Any]:
+        return await self._request("GET", "api/config")
+
+    async def async_check_update(self) -> dict[str, Any]:
+        return await self._request("POST", "api/update/check", timeout=60)
+
+    async def async_update_mqtt_settings(
+        self,
+        *,
+        enabled: bool,
+        host: str,
+        port: int,
+        username: str,
+        tls: bool,
+        topic_prefix: str,
+        discovery_prefix: str,
+    ) -> dict[str, Any]:
+        return await self._request(
+            "POST",
+            "api/settings/mqtt",
+            {
+                "enabled": enabled,
+                "host": host,
+                "port": port,
+                "username": username,
+                "tls": tls,
+                "topic_prefix": topic_prefix,
+                "discovery_prefix": discovery_prefix,
+            },
+            timeout=60,
+        )
