@@ -11,7 +11,7 @@
   "documentation": "https://github.com/trankhanhduy2929-beep/calling_messenger_hub",
   "integration_type": "service",
   "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/trankhanhduy2929-beep/calling_messenger_hub/issues",
   "requirements": [],
-  "version": "2.5.0",
-  "issue_tracker": "https://github.com/trankhanhduy2929-beep/calling_messenger_hub/issues"
+  "version": "2.5.0"
 }
