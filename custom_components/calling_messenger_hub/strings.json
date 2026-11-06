@@ -38,7 +38,7 @@
         "data_description": {
           "notify_service": "Ví dụ notify.mobile_app_dien_thoai. Chọn dịch vụ notify của Home Assistant.",
           "notify_events": "Chỉ gửi thông báo cho các loại sự kiện được chọn.",
-          "notify_url": "Đường dẫn dashboard hoặc trang web mở khi bấm nút Mở trên thông báo."
+          "notify_url": "Đường dẫn dashboard hoặc trang web mở khi bấm nút Mở trên thông báo. Nút Gọi lại mở trình gọi điện với số có trong sự kiện."
         }
       }
     }

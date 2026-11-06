@@ -1,0 +1,43 @@
+blueprint:
+  name: Calling Messenger Hub - Device trigger actions
+  description: >-
+    Chạy action khi thiết bị Calling Messenger Hub phát một loại sự kiện.
+    Blueprint dùng device trigger có sẵn để tạo automation trong giao diện.
+  domain: automation
+  input:
+    device:
+      name: Calling Messenger Hub device
+      selector:
+        device:
+          integration: calling_messenger_hub
+    event_type:
+      name: Event type
+      default: sms
+      selector:
+        select:
+          options:
+            - alert
+            - account
+            - automation
+            - call
+            - login
+            - message
+            - other
+            - otp
+            - photo
+            - ring
+            - sms
+            - voice
+    actions:
+      name: Actions
+      description: Action chạy khi device trigger phát sự kiện.
+      selector:
+        action:
+trigger:
+  - platform: device
+    domain: calling_messenger_hub
+    device_id: !input device
+    type: !input event_type
+action: !input actions
+mode: queued
+max: 25

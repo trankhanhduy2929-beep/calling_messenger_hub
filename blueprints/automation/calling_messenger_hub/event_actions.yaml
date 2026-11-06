@@ -1,0 +1,52 @@
+blueprint:
+  name: Calling Messenger Hub - Event entity actions
+  description: >-
+    Chạy action khi event entity Hoạt động của Calling Messenger Hub nhận loại
+    sự kiện đã chọn. Dùng giao diện Home Assistant, không cần viết YAML.
+  domain: automation
+  input:
+    event_entity:
+      name: Event entity
+      description: Chọn event.calling_messenger_hub_activity của thiết bị.
+      selector:
+        entity:
+          domain: event
+          integration: calling_messenger_hub
+    event_type:
+      name: Event type
+      description: Chọn một loại sự kiện hoặc "any" để chạy cho mọi sự kiện.
+      default: sms
+      selector:
+        select:
+          options:
+            - any
+            - alert
+            - account
+            - automation
+            - call
+            - login
+            - message
+            - other
+            - otp
+            - photo
+            - ring
+            - sms
+            - voice
+    actions:
+      name: Actions
+      description: Action chạy khi sự kiện khớp.
+      selector:
+        action:
+variables:
+  selected_event_type: !input event_type
+trigger:
+  - platform: state
+    entity_id: !input event_entity
+condition:
+  - condition: template
+    value_template: >-
+      {{ selected_event_type == 'any'
+         or trigger.to_state.attributes.event_type == selected_event_type }}
+action: !input actions
+mode: queued
+max: 25

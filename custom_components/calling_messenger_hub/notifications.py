@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
@@ -23,6 +24,8 @@ MOBILE_APP_ACTION_EVENT = "mobile_app_notification_action"
 ACTION_ACK = "CMH_ACK"
 ACTION_HANGUP = "CMH_HANGUP"
 ACTION_OPEN = "CMH_OPEN"
+ACTION_CALLBACK = "CMH_CALLBACK"
+_PHONE_RE = re.compile(r"^\+?\d{5,15}$")
 DATA_NOTIFICATION_ACTIONS = f"{DOMAIN}_notification_actions"
 
 _TITLES = {
@@ -67,6 +70,59 @@ def _event_tag(entry: ConfigEntry, event: dict[str, Any]) -> str:
 def _action(prefix: str, *parts: Any) -> str:
     return "|".join([prefix, *(str(part or "") for part in parts)])
 
+def _phone_uri(value: Any) -> str | None:
+    text = re.sub(r"[\s().-]+", "", str(value or "").strip())
+    if not _PHONE_RE.fullmatch(text):
+        return None
+    return f"tel:{text}"
+
+def _coordinator_data(entry: ConfigEntry) -> dict[str, Any]:
+    runtime = getattr(entry, "runtime_data", None)
+    coordinator = getattr(runtime, "coordinator", None)
+    data = getattr(coordinator, "data", None)
+    return dict(data) if isinstance(data, dict) else {}
+
+def _account_service(entry: ConfigEntry, account_id: str) -> str:
+    for account in _coordinator_data(entry).get("accounts") or []:
+        if str(account.get("id") or "") == account_id:
+            return str(account.get("service") or "")
+    return ""
+
+def _event_item(entry: ConfigEntry, event: dict[str, Any]) -> dict[str, Any]:
+    data = _coordinator_data(entry)
+    call_id = str(event.get("call_id") or "")
+    ring_id = str(event.get("ring_id") or "")
+    for key in ("calls", "rings"):
+        for item in data.get(key) or []:
+            item_id = str(item.get("id") or "")
+            if (call_id and item_id == call_id) or (ring_id and item_id == ring_id):
+                return dict(item)
+    return {}
+
+def _callback_target(entry: ConfigEntry, event: dict[str, Any]) -> str | None:
+    kind = str(event.get("kind") or "")
+    if kind in {"sms", "otp"}:
+        return _phone_uri(
+            event.get("sender") or event.get("peer_id") or event.get("from")
+        )
+    if kind not in {"call", "ring"}:
+        return None
+    item = _event_item(entry, event)
+    account_id = str(event.get("account_id") or item.get("account_id") or "")
+    service = str(
+        event.get("service")
+        or item.get("service")
+        or _account_service(entry, account_id)
+    )
+    if service != "sim":
+        return None
+    return _phone_uri(
+        item.get("peer_id")
+        or item.get("to")
+        or event.get("peer_id")
+        or event.get("to")
+    )
+
 
 def should_notify(entry: ConfigEntry, event: dict[str, Any]) -> bool:
     if _notify_service(entry.options) is None:
@@ -101,6 +157,15 @@ def _notification_actions(
             "title": "Đã xử lý",
         }
     ]
+    callback = _callback_target(entry, event)
+    if callback:
+        actions.append(
+            {
+                "action": ACTION_CALLBACK,
+                "title": "Gọi lại",
+                "uri": callback,
+            }
+        )
     item_id = event.get("call_id") or event.get("ring_id")
     if item_id:
         actions.append(

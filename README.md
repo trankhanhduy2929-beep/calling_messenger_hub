@@ -13,8 +13,8 @@ Custom integration kết nối Home Assistant với add-on **Calling Messenger H
 - Cảm biến sức khỏe luồng SSE: trạng thái kết nối, sự kiện gần nhất, số lần kết nối lại và nút khởi động lại luồng.
 - Mỗi tài khoản có binary_sensor online riêng; mỗi SIM có thêm cảm biến sóng, nhà mạng, số dư và hạn dùng.
 - Gửi thông báo qua `notify.calling_messenger_hub` và nhận event cuộc gọi, chuông, báo động, SMS/OTP và tài khoản.
-- Thông báo Home Assistant có nút **Đã xử lý**, **Tắt chuông** và **Mở** dashboard.
-- Device trigger theo từng loại sự kiện để dựng automation trực tiếp trong giao diện Home Assistant.
+- Thông báo Home Assistant có nút **Đã xử lý**, **Gọi lại**, **Tắt chuông** và **Mở** dashboard khi phù hợp.
+- Device trigger theo từng loại sự kiện và blueprint mẫu để dựng automation trực tiếp trong giao diện Home Assistant.
 
 Integration không chứa phần đăng nhập. Cần cài và cấu hình add-on trước.
 
@@ -53,7 +53,9 @@ Mở **Configure** để cấu hình:
 - **Notification event types:** các loại sự kiện cần gửi thông báo. Mặc định là báo động, OTP và SMS.
 - **Notification open URL:** dashboard hoặc trang web mở khi bấm **Mở** trên thông báo.
 
-Thông báo báo động có thêm nút **Đã xử lý** và **Tắt chuông** khi sự kiện có cuộc gọi hoặc chuông. Bấm **Đã xử lý** sẽ resolve báo động; **Tắt chuông** kết thúc cuộc gọi hoặc chuông đang chạy.
+Thông báo có nút **Đã xử lý**, **Gọi lại** khi sự kiện có số điện thoại hợp lệ, **Tắt chuông** khi có cuộc gọi/chuông và **Mở** dashboard nếu còn chỗ trong giới hạn 3 nút. Bấm **Đã xử lý** sẽ resolve báo động; **Gọi lại** mở trình gọi điện với số của SMS/OTP hoặc cuộc gọi SIM; **Tắt chuông** kết thúc cuộc gọi hoặc chuông đang chạy.
+
+Thông báo mặc định gửi cho báo động, OTP, SMS và cuộc gọi. Sự kiện SMS/OTP chỉ gửi khi có người gửi; báo động chỉ gửi khi còn hoạt động.
 
 ## Services
 
@@ -197,9 +199,19 @@ data:
 
 `target` hoặc `data.to` là người nhận. `data` hỗ trợ thêm `account`, `parse_mode` và `silent`.
 
-## Device trigger
+## Device trigger và blueprint
 
 Mỗi loại sự kiện SSE có device trigger trên thiết bị **Calling Messenger Hub**. Trong automation, chọn **Add trigger → Device → Calling Messenger Hub** rồi chọn loại sự kiện như `sms`, `call`, `alert`, `otp` hoặc `ring`. Trigger truyền dữ liệu sự kiện trong biến `trigger.event`.
+
+Blueprint mẫu:
+
+- `blueprints/automation/calling_messenger_hub/event_actions.yaml`: dùng event entity **Hoạt động**, chọn loại sự kiện và action.
+- `blueprints/automation/calling_messenger_hub/device_trigger_actions.yaml`: dùng device trigger, chọn thiết bị và loại sự kiện.
+
+Import bằng **Settings → Automations → Blueprints → Import blueprint** với URL raw sau, sao chép vào `/config/blueprints/automation/calling_messenger_hub/`, hoặc giải nén gói `calling_messenger_hub_blueprints-<version>.zip` trong release vào `/config`:
+
+- `event_actions.yaml`: `https://raw.githubusercontent.com/trankhanhduy2929-beep/calling_messenger_hub/main/blueprints/automation/calling_messenger_hub/event_actions.yaml`
+- `device_trigger_actions.yaml`: `https://raw.githubusercontent.com/trankhanhduy2929-beep/calling_messenger_hub/main/blueprints/automation/calling_messenger_hub/device_trigger_actions.yaml`
 
 ## Ghi chú
 

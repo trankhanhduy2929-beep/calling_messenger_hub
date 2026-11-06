@@ -11,7 +11,7 @@ CONF_NOTIFY_URL = "notify_url"
 DEFAULT_URL = "http://local-calling-messenger-hub:3030"
 LEGACY_DEFAULT_URL = "http://local-calling-messenger-hub:3332"
 DEFAULT_SCAN_INTERVAL = 30
-DEFAULT_NOTIFY_EVENTS = ["alert", "otp", "sms"]
+DEFAULT_NOTIFY_EVENTS = ["alert", "otp", "sms", "call"]
 NOTIFICATION_ACTION_EVENT = f"{DOMAIN}_notification_action"
 
 SERVICE_SEND_MESSAGE = "send_message"

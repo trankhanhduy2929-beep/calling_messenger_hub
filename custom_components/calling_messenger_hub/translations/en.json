@@ -38,7 +38,7 @@
         "data_description": {
           "notify_service": "For example notify.mobile_app_phone. Pick a Home Assistant notify service.",
           "notify_events": "Only send notifications for the selected event types.",
-          "notify_url": "Dashboard or web page opened by the Open action on a notification."
+          "notify_url": "Dashboard or web page opened by the Open action. The Call back action opens the dialer when the event contains a phone number."
         }
       }
     }
