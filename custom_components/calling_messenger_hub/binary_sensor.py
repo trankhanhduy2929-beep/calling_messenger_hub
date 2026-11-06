@@ -13,7 +13,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .accounts import AccountEntityRegistry, account_by_id, account_device_info
 from .coordinator import TelegramVoipCoordinator
-from .entity import TelegramVoipEntity
+from .entity import TelegramVoipEntity, TelegramVoipStreamEntity
 
 
 async def async_setup_entry(
@@ -25,6 +25,7 @@ async def async_setup_entry(
     async_add_entities(
         [
             ApiOnlineBinarySensor(coordinator, entry),
+            EventStreamConnectedBinarySensor(coordinator, entry),
             LicenseValidBinarySensor(coordinator, entry),
             MqttConnectedBinarySensor(coordinator, entry),
             SimProblemBinarySensor(coordinator, entry),
@@ -66,6 +67,32 @@ class ApiOnlineBinarySensor(TelegramVoipBinarySensor):
     @property
     def is_on(self) -> bool:
         return self.coordinator.last_update_success
+
+class EventStreamConnectedBinarySensor(
+    TelegramVoipStreamEntity, BinarySensorEntity
+):
+    _attr_translation_key = "event_stream_connected"
+    _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
+
+    def __init__(
+        self,
+        coordinator: TelegramVoipCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_event_stream_connected"
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def is_on(self) -> bool:
+        return self._stream.connected
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return self._stream.snapshot()
 
 class LicenseValidBinarySensor(TelegramVoipBinarySensor):
     _attr_translation_key = "license_valid"

@@ -30,7 +30,15 @@
       "init": {
         "title": "Tùy chọn Calling Messenger Hub",
         "data": {
-          "scan_interval": "Chu kỳ cập nhật (giây)"
+          "scan_interval": "Chu kỳ cập nhật (giây)",
+          "notify_service": "Dịch vụ thông báo",
+          "notify_events": "Loại sự kiện gửi thông báo",
+          "notify_url": "URL mở từ thông báo"
+        },
+        "data_description": {
+          "notify_service": "Ví dụ notify.mobile_app_dien_thoai. Chọn dịch vụ notify của Home Assistant.",
+          "notify_events": "Chỉ gửi thông báo cho các loại sự kiện được chọn.",
+          "notify_url": "Đường dẫn dashboard hoặc trang web mở khi bấm nút Mở trên thông báo."
         }
       }
     }
@@ -60,7 +68,9 @@
       },
       "account_expiry": {
         "name": "Hạn dùng SIM"
-      }
+      },
+      "event_stream_last_event": "Sự kiện SSE gần nhất",
+      "event_stream_reconnects": "Số lần kết nối lại SSE"
     },
     "binary_sensor": {
       "api_online": {
@@ -80,7 +90,8 @@
       },
       "account_online": {
         "name": "Trực tuyến"
-      }
+      },
+      "event_stream_connected": "Luồng SSE đã kết nối"
     },
     "button": {
       "refresh": {
@@ -88,7 +99,8 @@
       },
       "check_update": {
         "name": "Kiểm tra cập nhật"
-      }
+      },
+      "restart_event_stream": "Khởi động lại luồng SSE"
     },
     "switch": {
       "mqtt_bridge": {
@@ -99,6 +111,22 @@
       "activity": {
         "name": "Hoạt động"
       }
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "alert": "Báo động",
+      "account": "Tài khoản",
+      "automation": "Tự động hóa",
+      "call": "Cuộc gọi",
+      "login": "Đăng nhập",
+      "message": "Tin nhắn",
+      "other": "Khác",
+      "otp": "OTP",
+      "photo": "Ảnh",
+      "ring": "Chuông",
+      "sms": "SMS",
+      "voice": "Thoại"
     }
   }
 }

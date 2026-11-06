@@ -54,7 +54,9 @@ async def test_setup_creates_base_and_per_account_entities(hass, monkeypatch):
     async def fake_status(self):
         return STATUS
 
-    async def fake_stream(self):
+    async def fake_stream(self, on_connect=None):
+        if on_connect is not None:
+            on_connect()
         await asyncio.Event().wait()
         yield {}
 

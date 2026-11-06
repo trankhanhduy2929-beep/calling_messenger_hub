@@ -20,7 +20,9 @@ class FakeApi:
     def __init__(self, events):
         self.events = events
 
-    async def async_stream_events(self):
+    async def async_stream_events(self, on_connect=None):
+        if on_connect is not None:
+            on_connect()
         for item in self.events:
             yield item
         await asyncio.Event().wait()
@@ -69,3 +71,9 @@ async def test_stream_dispatches_events_once(hass):
 
     assert [item["id"] for item in received] == ["evt-1"]
     assert connected == [True]
+    status = stream.snapshot()
+    assert status["events_received"] == 1
+    assert status["last_event_id"] == "evt-1"
+    assert status["last_event_kind"] == "sms"
+    assert status["last_event_at"] == "2026-01-01T00:00:00Z"
+    assert status["connected"] is False

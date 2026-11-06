@@ -61,6 +61,10 @@ from .const import (
     SERVICE_TRIGGER_ALERT,
 )
 from .coordinator import TelegramVoipCoordinator
+from .notifications import (
+    async_register_notification_actions,
+    async_unregister_notification_actions,
+)
 from .stream import TelegramVoipEventStream
 
 _LOGGER = logging.getLogger(__name__)
@@ -472,6 +476,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
     _async_register_services(hass)
     _async_register_notify_service(hass)
+    async_register_notification_actions(hass)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORM_LIST)
     stream.async_start()
     return True
@@ -484,6 +489,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORM_LIST)
     if unloaded:
         entry.runtime_data = None
+        if not any(
+            other.entry_id != entry.entry_id and other.state is ConfigEntryState.LOADED
+            for other in hass.config_entries.async_entries(DOMAIN)
+        ):
+            async_unregister_notification_actions(hass)
     return unloaded
 
 

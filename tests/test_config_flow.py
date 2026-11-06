@@ -9,9 +9,13 @@ from custom_components.calling_messenger_hub.api import (
     TelegramVoipConnectionError,
 )
 from custom_components.calling_messenger_hub.const import (
+    CONF_NOTIFY_EVENTS,
+    CONF_NOTIFY_SERVICE,
+    CONF_NOTIFY_URL,
     CONF_SCAN_INTERVAL,
     CONF_TOKEN,
     CONF_URL,
+    DEFAULT_NOTIFY_EVENTS,
     DOMAIN,
 )
 
@@ -99,7 +103,7 @@ async def test_duplicate_url_aborts(hass, monkeypatch):
     assert result["reason"] == "already_configured"
 
 
-async def test_options_flow_updates_scan_interval(hass):
+async def test_options_flow_updates_notifications(hass):
     entry = MockConfigEntry(
         domain=DOMAIN,
         data={CONF_URL: "http://hub.local:3030", CONF_TOKEN: "token"},
@@ -111,7 +115,39 @@ async def test_options_flow_updates_scan_interval(hass):
     assert result["type"] is data_entry_flow.FlowResultType.FORM
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
-        {CONF_SCAN_INTERVAL: 60},
+        {
+            CONF_SCAN_INTERVAL: 60,
+            CONF_NOTIFY_SERVICE: "notify.mobile_app_phone",
+            CONF_NOTIFY_EVENTS: ["alert", "sms"],
+            CONF_NOTIFY_URL: "/lovelace/calls",
+        },
     )
     assert result["type"] is data_entry_flow.FlowResultType.CREATE_ENTRY
-    assert result["data"] == {CONF_SCAN_INTERVAL: 60}
+    assert result["data"] == {
+        CONF_SCAN_INTERVAL: 60,
+        CONF_NOTIFY_SERVICE: "notify.mobile_app_phone",
+        CONF_NOTIFY_EVENTS: ["alert", "sms"],
+        CONF_NOTIFY_URL: "/lovelace/calls",
+    }
+
+
+async def test_options_flow_defaults_notifications(hass):
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_URL: "http://hub.local:3030", CONF_TOKEN: "token"},
+        options={CONF_SCAN_INTERVAL: 30},
+    )
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {CONF_SCAN_INTERVAL: 45},
+    )
+    assert result["type"] is data_entry_flow.FlowResultType.CREATE_ENTRY
+    assert result["data"] == {
+        CONF_SCAN_INTERVAL: 45,
+        CONF_NOTIFY_SERVICE: "",
+        CONF_NOTIFY_EVENTS: DEFAULT_NOTIFY_EVENTS,
+        CONF_NOTIFY_URL: "",
+    }

@@ -9,7 +9,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .api import TelegramVoipApiError
 from .coordinator import TelegramVoipCoordinator
-from .entity import TelegramVoipEntity
+from .entity import TelegramVoipEntity, TelegramVoipStreamEntity
 
 
 async def async_setup_entry(
@@ -21,6 +21,7 @@ async def async_setup_entry(
     async_add_entities(
         [
             RefreshButton(coordinator, entry),
+            RestartEventStreamButton(coordinator, entry),
             CheckUpdateButton(coordinator, entry),
         ]
     )
@@ -43,6 +44,25 @@ class RefreshButton(TelegramVoipButton):
 
     async def async_press(self) -> None:
         await self.coordinator.async_request_refresh()
+
+class RestartEventStreamButton(TelegramVoipStreamEntity, ButtonEntity):
+    _attr_translation_key = "restart_event_stream"
+    _attr_icon = "mdi:restart-alert"
+
+    def __init__(
+        self,
+        coordinator: TelegramVoipCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_restart_event_stream"
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    async def async_press(self) -> None:
+        await self._stream.async_restart()
 
 class CheckUpdateButton(TelegramVoipButton):
     _attr_translation_key = "check_update"

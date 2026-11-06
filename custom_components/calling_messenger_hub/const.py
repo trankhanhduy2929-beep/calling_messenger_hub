@@ -4,10 +4,15 @@ PLATFORMS = ["sensor"]
 CONF_URL = "url"
 CONF_TOKEN = "token"
 CONF_SCAN_INTERVAL = "scan_interval"
+CONF_NOTIFY_SERVICE = "notify_service"
+CONF_NOTIFY_EVENTS = "notify_events"
+CONF_NOTIFY_URL = "notify_url"
 
 DEFAULT_URL = "http://local-calling-messenger-hub:3030"
 LEGACY_DEFAULT_URL = "http://local-calling-messenger-hub:3332"
 DEFAULT_SCAN_INTERVAL = 30
+DEFAULT_NOTIFY_EVENTS = ["alert", "otp", "sms"]
+NOTIFICATION_ACTION_EVENT = f"{DOMAIN}_notification_action"
 
 SERVICE_SEND_MESSAGE = "send_message"
 SERVICE_SEND_TTS = "send_tts"

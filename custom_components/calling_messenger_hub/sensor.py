@@ -1,16 +1,22 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity, SensorStateClass
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from .accounts import AccountEntityRegistry, account_by_id, account_device_info
 from .coordinator import TelegramVoipCoordinator
-from .entity import TelegramVoipEntity
+from .entity import TelegramVoipEntity, TelegramVoipStreamEntity
 
 
 async def async_setup_entry(
@@ -25,6 +31,8 @@ async def async_setup_entry(
             ActiveCallsSensor(coordinator, entry),
             AlertsActiveSensor(coordinator, entry),
             AlertsUnacknowledgedSensor(coordinator, entry),
+            EventStreamLastEventSensor(coordinator, entry),
+            EventStreamReconnectsSensor(coordinator, entry),
         ]
     )
 
@@ -279,4 +287,87 @@ class AccountExpirySensor(AccountSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         return {
             "balance_updated_at": self._account.get("balance_updated_at"),
+        }
+
+
+def _event_time(value: Any) -> datetime | None:
+    if value in (None, ""):
+        return None
+    if isinstance(value, (int, float)):
+        try:
+            return datetime.fromtimestamp(float(value), UTC)
+        except (OverflowError, OSError, ValueError):
+            return None
+    text = str(value).strip()
+    parsed = dt_util.parse_datetime(text)
+    if parsed is None:
+        try:
+            return datetime.fromtimestamp(float(text), UTC)
+        except (OverflowError, OSError, ValueError):
+            return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=UTC)
+    return parsed
+
+
+class EventStreamLastEventSensor(TelegramVoipStreamEntity, SensorEntity):
+    _attr_translation_key = "event_stream_last_event"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_icon = "mdi:message-flash"
+
+    def __init__(
+        self,
+        coordinator: TelegramVoipCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_event_stream_last_event"
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def native_value(self) -> datetime | None:
+        return _event_time(self._stream.snapshot().get("last_event_at"))
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        status = self._stream.snapshot()
+        return {
+            "event_id": status.get("last_event_id"),
+            "event_kind": status.get("last_event_kind"),
+            "events_received": status.get("events_received"),
+            "reconnects": status.get("reconnects"),
+        }
+
+
+class EventStreamReconnectsSensor(TelegramVoipStreamEntity, SensorEntity):
+    _attr_translation_key = "event_stream_reconnects"
+    _attr_icon = "mdi:reload-alert"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: TelegramVoipCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_event_stream_reconnects"
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def native_value(self) -> int:
+        return int(self._stream.snapshot().get("reconnects", 0))
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        status = self._stream.snapshot()
+        return {
+            "connected": status.get("connected"),
+            "connected_since": status.get("connected_since"),
+            "last_error": status.get("last_error"),
         }

@@ -30,7 +30,15 @@
       "init": {
         "title": "Calling Messenger Hub options",
         "data": {
-          "scan_interval": "Update interval (seconds)"
+          "scan_interval": "Update interval (seconds)",
+          "notify_service": "Notification service",
+          "notify_events": "Notification event types",
+          "notify_url": "Notification open URL"
+        },
+        "data_description": {
+          "notify_service": "For example notify.mobile_app_phone. Pick a Home Assistant notify service.",
+          "notify_events": "Only send notifications for the selected event types.",
+          "notify_url": "Dashboard or web page opened by the Open action on a notification."
         }
       }
     }
@@ -60,7 +68,9 @@
       },
       "account_expiry": {
         "name": "SIM expiry"
-      }
+      },
+      "event_stream_last_event": "Last SSE event",
+      "event_stream_reconnects": "SSE reconnect count"
     },
     "binary_sensor": {
       "api_online": {
@@ -80,7 +90,8 @@
       },
       "account_online": {
         "name": "Online"
-      }
+      },
+      "event_stream_connected": "SSE stream connected"
     },
     "button": {
       "refresh": {
@@ -88,7 +99,8 @@
       },
       "check_update": {
         "name": "Check for updates"
-      }
+      },
+      "restart_event_stream": "Restart SSE stream"
     },
     "switch": {
       "mqtt_bridge": {
@@ -99,6 +111,22 @@
       "activity": {
         "name": "Activity"
       }
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "alert": "Alert",
+      "account": "Account",
+      "automation": "Automation",
+      "call": "Call",
+      "login": "Login",
+      "message": "Message",
+      "other": "Other",
+      "otp": "OTP",
+      "photo": "Photo",
+      "ring": "Ring",
+      "sms": "SMS",
+      "voice": "Voice"
     }
   }
 }

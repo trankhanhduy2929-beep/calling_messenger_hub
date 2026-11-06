@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from typing import Any
 
 import aiohttp
@@ -70,7 +70,10 @@ class TelegramVoipApi:
     async def async_status(self) -> dict[str, Any]:
         return await self._request("GET", "api/status")
 
-    async def async_stream_events(self) -> AsyncIterator[dict[str, Any]]:
+    async def async_stream_events(
+        self,
+        on_connect: Callable[[], None] | None = None,
+    ) -> AsyncIterator[dict[str, Any]]:
         headers = {"Authorization": f"Bearer {self._token}"}
         timeout = aiohttp.ClientTimeout(total=None, connect=15, sock_read=45)
         try:
@@ -83,6 +86,8 @@ class TelegramVoipApi:
                     raise TelegramVoipAuthError("invalid API token")
                 if response.status >= 400:
                     raise TelegramVoipApiError("event stream request failed")
+                if on_connect is not None:
+                    on_connect()
                 async for raw_line in response.content:
                     line = raw_line.decode("utf-8", "replace").rstrip("\r\n")
                     if not line.startswith("data:"):

@@ -15,9 +15,13 @@ from .api import (
     TelegramVoipConnectionError,
 )
 from .const import (
+    CONF_NOTIFY_EVENTS,
+    CONF_NOTIFY_SERVICE,
+    CONF_NOTIFY_URL,
     CONF_SCAN_INTERVAL,
     CONF_TOKEN,
     CONF_URL,
+    DEFAULT_NOTIFY_EVENTS,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_URL,
     DOMAIN,
@@ -33,11 +37,26 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     }
 )
 
+NOTIFY_EVENT_OPTIONS = {
+    "alert": "Báo động",
+    "otp": "OTP",
+    "sms": "SMS",
+    "call": "Cuộc gọi",
+    "ring": "Chuông",
+    "account": "Tài khoản",
+    "message": "Tin nhắn",
+}
+
 STEP_OPTIONS_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
             vol.Coerce(int), vol.Range(min=10, max=300)
         ),
+        vol.Optional(CONF_NOTIFY_SERVICE, default=""): cv.string,
+        vol.Optional(
+            CONF_NOTIFY_EVENTS, default=list(DEFAULT_NOTIFY_EVENTS)
+        ): cv.multi_select(NOTIFY_EVENT_OPTIONS),
+        vol.Optional(CONF_NOTIFY_URL, default=""): cv.string,
     }
 )
 
@@ -106,9 +125,18 @@ class TelegramVoipOptionsFlow(OptionsFlow):
     ) -> FlowResult:
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
-        current = self._entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+        options = self._entry.options
         schema = self.add_suggested_values_to_schema(
             STEP_OPTIONS_DATA_SCHEMA,
-            {CONF_SCAN_INTERVAL: current},
+            {
+                CONF_SCAN_INTERVAL: options.get(
+                    CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
+                ),
+                CONF_NOTIFY_SERVICE: options.get(CONF_NOTIFY_SERVICE, ""),
+                CONF_NOTIFY_EVENTS: options.get(
+                    CONF_NOTIFY_EVENTS, list(DEFAULT_NOTIFY_EVENTS)
+                ),
+                CONF_NOTIFY_URL: options.get(CONF_NOTIFY_URL, ""),
+            },
         )
         return self.async_show_form(step_id="init", data_schema=schema)

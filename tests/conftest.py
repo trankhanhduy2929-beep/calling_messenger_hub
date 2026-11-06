@@ -16,7 +16,9 @@ def auto_enable_custom_integrations(enable_custom_integrations):
 
 @pytest.fixture(autouse=True)
 def mock_event_stream(monkeypatch):
-    async def fake_stream(self):
+    async def fake_stream(self, on_connect=None):
+        if on_connect is not None:
+            on_connect()
         await asyncio.Event().wait()
         yield {}
 

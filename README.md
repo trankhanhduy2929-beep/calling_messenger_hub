@@ -10,8 +10,11 @@ Custom integration kết nối Home Assistant với add-on **Calling Messenger H
 - Kích hoạt chính sách báo động, xác nhận, đánh dấu đã xử lý hoặc hủy.
 - Theo dõi tài khoản online, cuộc gọi, chuông, báo động, license, MQTT và sức khỏe SIM.
 - Nhận sự kiện realtime qua SSE, gần như ngay lập tức; tự kết nối lại khi mất luồng và vẫn có polling dự phòng.
+- Cảm biến sức khỏe luồng SSE: trạng thái kết nối, sự kiện gần nhất, số lần kết nối lại và nút khởi động lại luồng.
 - Mỗi tài khoản có binary_sensor online riêng; mỗi SIM có thêm cảm biến sóng, nhà mạng, số dư và hạn dùng.
 - Gửi thông báo qua `notify.calling_messenger_hub` và nhận event cuộc gọi, chuông, báo động, SMS/OTP và tài khoản.
+- Thông báo Home Assistant có nút **Đã xử lý**, **Tắt chuông** và **Mở** dashboard.
+- Device trigger theo từng loại sự kiện để dựng automation trực tiếp trong giao diện Home Assistant.
 
 Integration không chứa phần đăng nhập. Cần cài và cấu hình add-on trước.
 
@@ -41,6 +44,16 @@ Copy thư mục `custom_components/calling_messenger_hub` vào `/config/custom_c
 - **Add-on URL:** thường là `http://local-calling-messenger-hub:3030`. Không thêm dấu `/` ở cuối.
 - **API token:** sao chép từ add-on.
 - Có thể đổi URL hoặc token sau khi cài bằng **Configure**.
+
+### Tùy chọn thông báo
+
+Mở **Configure** để cấu hình:
+
+- **Notification service:** dịch vụ notify của Home Assistant, ví dụ `notify.mobile_app_dien_thoai`.
+- **Notification event types:** các loại sự kiện cần gửi thông báo. Mặc định là báo động, OTP và SMS.
+- **Notification open URL:** dashboard hoặc trang web mở khi bấm **Mở** trên thông báo.
+
+Thông báo báo động có thêm nút **Đã xử lý** và **Tắt chuông** khi sự kiện có cuộc gọi hoặc chuông. Bấm **Đã xử lý** sẽ resolve báo động; **Tắt chuông** kết thúc cuộc gọi hoặc chuông đang chạy.
 
 ## Services
 
@@ -162,9 +175,9 @@ data:
 
 ## Entity và notify
 
-- `sensor`: tài khoản online, cuộc gọi, báo động đang chạy và chưa xác nhận; mỗi SIM có thêm sóng, nhà mạng, số dư và hạn dùng.
-- `binary_sensor`: kết nối API, license, MQTT, sự cố SIM, bản cập nhật và trạng thái online của từng tài khoản.
-- `button`: làm mới trạng thái và kiểm tra cập nhật.
+- `sensor`: tài khoản online, cuộc gọi, báo động đang chạy và chưa xác nhận; sự kiện SSE gần nhất và số lần kết nối lại; mỗi SIM có thêm sóng, nhà mạng, số dư và hạn dùng.
+- `binary_sensor`: kết nối API, kết nối luồng SSE, license, MQTT, sự cố SIM, bản cập nhật và trạng thái online của từng tài khoản.
+- `button`: làm mới trạng thái, khởi động lại luồng SSE và kiểm tra cập nhật.
 - `switch.calling_messenger_hub_mqtt_bridge`: bật/tắt cầu nối MQTT.
 - `event.calling_messenger_hub_activity`: cuộc gọi, chuông, báo động, tin nhắn, SMS/OTP, tài khoản, automation và sự kiện khác. SMS/OTP không chứa nội dung hoặc mã.
 - Entity của tài khoản được thêm hoặc gỡ tự động khi danh sách tài khoản trong add-on thay đổi.
@@ -183,6 +196,10 @@ data:
 ```
 
 `target` hoặc `data.to` là người nhận. `data` hỗ trợ thêm `account`, `parse_mode` và `silent`.
+
+## Device trigger
+
+Mỗi loại sự kiện SSE có device trigger trên thiết bị **Calling Messenger Hub**. Trong automation, chọn **Add trigger → Device → Calling Messenger Hub** rồi chọn loại sự kiện như `sms`, `call`, `alert`, `otp` hoặc `ring`. Trigger truyền dữ liệu sự kiện trong biến `trigger.event`.
 
 ## Ghi chú
 
