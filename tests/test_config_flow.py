@@ -9,13 +9,21 @@ from custom_components.calling_messenger_hub.api import (
     TelegramVoipConnectionError,
 )
 from custom_components.calling_messenger_hub.const import (
+    CONF_NOTIFY_ACCOUNTS,
+    CONF_NOTIFY_COOLDOWN,
+    CONF_NOTIFY_CRITICAL_SERVICES,
     CONF_NOTIFY_EVENTS,
+    CONF_NOTIFY_QUIET_END,
+    CONF_NOTIFY_QUIET_START,
     CONF_NOTIFY_SERVICE,
+    CONF_NOTIFY_SERVICES,
+    CONF_NOTIFY_SEVERITIES,
     CONF_NOTIFY_URL,
     CONF_SCAN_INTERVAL,
     CONF_TOKEN,
     CONF_URL,
     DEFAULT_NOTIFY_EVENTS,
+    DEFAULT_NOTIFY_SEVERITIES,
     DOMAIN,
 )
 
@@ -118,7 +126,14 @@ async def test_options_flow_updates_notifications(hass):
         {
             CONF_SCAN_INTERVAL: 60,
             CONF_NOTIFY_SERVICE: "notify.mobile_app_phone",
+            CONF_NOTIFY_SERVICES: "notify.mobile_app_phone\nnotify.mobile_app_tablet",
+            CONF_NOTIFY_CRITICAL_SERVICES: "notify.mobile_app_critical",
             CONF_NOTIFY_EVENTS: ["alert", "sms"],
+            CONF_NOTIFY_ACCOUNTS: "sim-1",
+            CONF_NOTIFY_SEVERITIES: ["warning", "critical"],
+            CONF_NOTIFY_QUIET_START: "22:00",
+            CONF_NOTIFY_QUIET_END: "06:30",
+            CONF_NOTIFY_COOLDOWN: 90,
             CONF_NOTIFY_URL: "/lovelace/calls",
         },
     )
@@ -126,7 +141,14 @@ async def test_options_flow_updates_notifications(hass):
     assert result["data"] == {
         CONF_SCAN_INTERVAL: 60,
         CONF_NOTIFY_SERVICE: "notify.mobile_app_phone",
+        CONF_NOTIFY_SERVICES: "notify.mobile_app_phone\nnotify.mobile_app_tablet",
+        CONF_NOTIFY_CRITICAL_SERVICES: "notify.mobile_app_critical",
         CONF_NOTIFY_EVENTS: ["alert", "sms"],
+        CONF_NOTIFY_ACCOUNTS: "sim-1",
+        CONF_NOTIFY_SEVERITIES: ["warning", "critical"],
+        CONF_NOTIFY_QUIET_START: "22:00",
+        CONF_NOTIFY_QUIET_END: "06:30",
+        CONF_NOTIFY_COOLDOWN: 90,
         CONF_NOTIFY_URL: "/lovelace/calls",
     }
 
@@ -148,6 +170,13 @@ async def test_options_flow_defaults_notifications(hass):
     assert result["data"] == {
         CONF_SCAN_INTERVAL: 45,
         CONF_NOTIFY_SERVICE: "",
+        CONF_NOTIFY_SERVICES: "",
+        CONF_NOTIFY_CRITICAL_SERVICES: "",
         CONF_NOTIFY_EVENTS: DEFAULT_NOTIFY_EVENTS,
+        CONF_NOTIFY_ACCOUNTS: "",
+        CONF_NOTIFY_SEVERITIES: DEFAULT_NOTIFY_SEVERITIES,
+        CONF_NOTIFY_QUIET_START: "",
+        CONF_NOTIFY_QUIET_END: "",
+        CONF_NOTIFY_COOLDOWN: 0,
         CONF_NOTIFY_URL: "",
     }

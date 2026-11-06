@@ -5,13 +5,22 @@ CONF_URL = "url"
 CONF_TOKEN = "token"
 CONF_SCAN_INTERVAL = "scan_interval"
 CONF_NOTIFY_SERVICE = "notify_service"
+CONF_NOTIFY_SERVICES = "notify_services"
+CONF_NOTIFY_CRITICAL_SERVICES = "notify_critical_services"
 CONF_NOTIFY_EVENTS = "notify_events"
+CONF_NOTIFY_ACCOUNTS = "notify_accounts"
+CONF_NOTIFY_SEVERITIES = "notify_severities"
+CONF_NOTIFY_QUIET_START = "notify_quiet_start"
+CONF_NOTIFY_QUIET_END = "notify_quiet_end"
+CONF_NOTIFY_COOLDOWN = "notify_cooldown"
 CONF_NOTIFY_URL = "notify_url"
 
 DEFAULT_URL = "http://local-calling-messenger-hub:3030"
 LEGACY_DEFAULT_URL = "http://local-calling-messenger-hub:3332"
 DEFAULT_SCAN_INTERVAL = 30
 DEFAULT_NOTIFY_EVENTS = ["alert", "otp", "sms", "call"]
+DEFAULT_NOTIFY_SEVERITIES = ["info", "warning", "critical"]
+DEFAULT_NOTIFY_COOLDOWN = 0
 NOTIFICATION_ACTION_EVENT = f"{DOMAIN}_notification_action"
 
 SERVICE_SEND_MESSAGE = "send_message"

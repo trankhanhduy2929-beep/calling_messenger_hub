@@ -11,7 +11,7 @@
         },
         "data_description": {
           "url": "Ví dụ http://local-calling-messenger-hub:3030 khi add-on cài cục bộ. Đổi hostname nếu dùng repository khác.",
-          "token": "Bearer token dùng để gọi REST API của add-on.",
+          "token": "Bearer token dùng để gọi REST API của add-on; lấy từ Cài đặt trong add-on.",
           "scan_interval": "Khoảng thời gian giữa các lần đọc trạng thái tài khoản và cuộc gọi."
         }
       }
@@ -31,14 +31,28 @@
         "title": "Tùy chọn Calling Messenger Hub",
         "data": {
           "scan_interval": "Chu kỳ cập nhật (giây)",
-          "notify_service": "Dịch vụ thông báo",
+          "notify_service": "Dịch vụ thông báo cũ",
+          "notify_services": "Nhiều dịch vụ thông báo",
+          "notify_critical_services": "Dịch vụ cho mức nghiêm trọng",
           "notify_events": "Loại sự kiện gửi thông báo",
+          "notify_accounts": "Lọc theo tài khoản",
+          "notify_severities": "Mức độ gửi thông báo",
+          "notify_quiet_start": "Giờ im lặng bắt đầu",
+          "notify_quiet_end": "Giờ im lặng kết thúc",
+          "notify_cooldown": "Chống trùng (giây)",
           "notify_url": "URL mở từ thông báo"
         },
         "data_description": {
-          "notify_service": "Ví dụ notify.mobile_app_dien_thoai. Chọn dịch vụ notify của Home Assistant.",
+          "notify_service": "Dịch vụ đơn cũ; chỉ dùng khi mục nhiều dịch vụ để trống. Ví dụ notify.mobile_app_dien_thoai.",
+          "notify_services": "Danh sách service notify, cách nhau dấu phẩy hoặc xuống dòng. Ví dụ notify.mobile_app_phone, notify.mobile_app_tablet.",
+          "notify_critical_services": "Nếu đặt, sự kiện mức Nghiêm trọng chỉ gửi tới các service này thay vì danh sách chính.",
           "notify_events": "Chỉ gửi thông báo cho các loại sự kiện được chọn.",
-          "notify_url": "Đường dẫn dashboard hoặc trang web mở khi bấm nút Mở trên thông báo. Nút Gọi lại mở trình gọi điện với số có trong sự kiện."
+          "notify_accounts": "Chỉ gửi cho tài khoản khớp ID, tên, số điện thoại hoặc loại dịch vụ; cách nhau dấu phẩy. Để trống = tất cả.",
+          "notify_severities": "Chỉ gửi sự kiện thuộc mức đã chọn; sự kiện không có mức được coi là Thông tin.",
+          "notify_quiet_start": "HH:MM theo múi giờ Home Assistant. Đặt cả bắt đầu và kết thúc để bật giờ im lặng.",
+          "notify_quiet_end": "HH:MM theo múi giờ Home Assistant. Mức Nghiêm trọng vẫn gửi xuyên qua giờ im lặng.",
+          "notify_cooldown": "Bỏ qua thông báo trùng cùng loại, tài khoản và người gửi trong khoảng này. 0 = tắt.",
+          "notify_url": "Đường dẫn dashboard hoặc trang web mở khi bấm nút Mở. Nút Gọi lại mở trình gọi điện; Mở chat mở hội thoại Telegram/Zalo khi có thể."
         }
       }
     }

@@ -15,13 +15,22 @@ from .api import (
     TelegramVoipConnectionError,
 )
 from .const import (
+    CONF_NOTIFY_ACCOUNTS,
+    CONF_NOTIFY_COOLDOWN,
+    CONF_NOTIFY_CRITICAL_SERVICES,
     CONF_NOTIFY_EVENTS,
+    CONF_NOTIFY_QUIET_END,
+    CONF_NOTIFY_QUIET_START,
     CONF_NOTIFY_SERVICE,
+    CONF_NOTIFY_SERVICES,
+    CONF_NOTIFY_SEVERITIES,
     CONF_NOTIFY_URL,
     CONF_SCAN_INTERVAL,
     CONF_TOKEN,
     CONF_URL,
+    DEFAULT_NOTIFY_COOLDOWN,
     DEFAULT_NOTIFY_EVENTS,
+    DEFAULT_NOTIFY_SEVERITIES,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_URL,
     DOMAIN,
@@ -47,15 +56,32 @@ NOTIFY_EVENT_OPTIONS = {
     "message": "Tin nhắn",
 }
 
+NOTIFY_SEVERITY_OPTIONS = {
+    "info": "Thông tin",
+    "warning": "Cảnh báo",
+    "critical": "Nghiêm trọng",
+}
+
 STEP_OPTIONS_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
             vol.Coerce(int), vol.Range(min=10, max=300)
         ),
         vol.Optional(CONF_NOTIFY_SERVICE, default=""): cv.string,
+        vol.Optional(CONF_NOTIFY_SERVICES, default=""): cv.string,
+        vol.Optional(CONF_NOTIFY_CRITICAL_SERVICES, default=""): cv.string,
         vol.Optional(
             CONF_NOTIFY_EVENTS, default=list(DEFAULT_NOTIFY_EVENTS)
         ): cv.multi_select(NOTIFY_EVENT_OPTIONS),
+        vol.Optional(CONF_NOTIFY_ACCOUNTS, default=""): cv.string,
+        vol.Optional(
+            CONF_NOTIFY_SEVERITIES, default=list(DEFAULT_NOTIFY_SEVERITIES)
+        ): cv.multi_select(NOTIFY_SEVERITY_OPTIONS),
+        vol.Optional(CONF_NOTIFY_QUIET_START, default=""): cv.string,
+        vol.Optional(CONF_NOTIFY_QUIET_END, default=""): cv.string,
+        vol.Optional(CONF_NOTIFY_COOLDOWN, default=DEFAULT_NOTIFY_COOLDOWN): vol.All(
+            vol.Coerce(int), vol.Range(min=0, max=3600)
+        ),
         vol.Optional(CONF_NOTIFY_URL, default=""): cv.string,
     }
 )
@@ -133,8 +159,21 @@ class TelegramVoipOptionsFlow(OptionsFlow):
                     CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
                 ),
                 CONF_NOTIFY_SERVICE: options.get(CONF_NOTIFY_SERVICE, ""),
+                CONF_NOTIFY_SERVICES: options.get(CONF_NOTIFY_SERVICES, ""),
+                CONF_NOTIFY_CRITICAL_SERVICES: options.get(
+                    CONF_NOTIFY_CRITICAL_SERVICES, ""
+                ),
                 CONF_NOTIFY_EVENTS: options.get(
                     CONF_NOTIFY_EVENTS, list(DEFAULT_NOTIFY_EVENTS)
+                ),
+                CONF_NOTIFY_ACCOUNTS: options.get(CONF_NOTIFY_ACCOUNTS, ""),
+                CONF_NOTIFY_SEVERITIES: options.get(
+                    CONF_NOTIFY_SEVERITIES, list(DEFAULT_NOTIFY_SEVERITIES)
+                ),
+                CONF_NOTIFY_QUIET_START: options.get(CONF_NOTIFY_QUIET_START, ""),
+                CONF_NOTIFY_QUIET_END: options.get(CONF_NOTIFY_QUIET_END, ""),
+                CONF_NOTIFY_COOLDOWN: options.get(
+                    CONF_NOTIFY_COOLDOWN, DEFAULT_NOTIFY_COOLDOWN
                 ),
                 CONF_NOTIFY_URL: options.get(CONF_NOTIFY_URL, ""),
             },

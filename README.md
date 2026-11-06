@@ -13,7 +13,7 @@ Custom integration kết nối Home Assistant với add-on **Calling Messenger H
 - Cảm biến sức khỏe luồng SSE: trạng thái kết nối, sự kiện gần nhất, số lần kết nối lại và nút khởi động lại luồng.
 - Mỗi tài khoản có binary_sensor online riêng; mỗi SIM có thêm cảm biến sóng, nhà mạng, số dư và hạn dùng.
 - Gửi thông báo qua `notify.calling_messenger_hub` và nhận event cuộc gọi, chuông, báo động, SMS/OTP và tài khoản.
-- Thông báo Home Assistant có nút **Đã xử lý**, **Gọi lại**, **Tắt chuông** và **Mở** dashboard khi phù hợp.
+- Thông báo Home Assistant có nút **Đã xử lý**, **Gọi lại**, **Mở chat**, **Tắt chuông** và **Mở** dashboard khi phù hợp; hỗ trợ nhiều dịch vụ notify, lọc tài khoản/mức độ, giờ im lặng, chống trùng và định tuyến sự kiện nghiêm trọng.
 - Device trigger theo từng loại sự kiện và blueprint mẫu để dựng automation trực tiếp trong giao diện Home Assistant.
 
 Integration không chứa phần đăng nhập. Cần cài và cấu hình add-on trước.
@@ -49,13 +49,24 @@ Copy thư mục `custom_components/calling_messenger_hub` vào `/config/custom_c
 
 Mở **Configure** để cấu hình:
 
-- **Notification service:** dịch vụ notify của Home Assistant, ví dụ `notify.mobile_app_dien_thoai`.
-- **Notification event types:** các loại sự kiện cần gửi thông báo. Mặc định là báo động, OTP và SMS.
-- **Notification open URL:** dashboard hoặc trang web mở khi bấm **Mở** trên thông báo.
+- **Notification services:** danh sách service notify, cách nhau dấu phẩy hoặc xuống dòng, ví dụ `notify.mobile_app_dien_thoai, notify.mobile_app_tablet`. Ô dịch vụ đơn cũ vẫn được dùng khi danh sách này để trống.
+- **Critical notification services:** nếu đặt, sự kiện `critical` chỉ gửi tới danh sách này.
+- **Notification event types:** mặc định gồm báo động, OTP, SMS và cuộc gọi.
+- **Account filter:** chỉ gửi khi tài khoản khớp ID, tên, số điện thoại hoặc loại dịch vụ; để trống để nhận tất cả.
+- **Notification severity:** chọn `info`, `warning`, `critical`; sự kiện không có mức được coi là `info`.
+- **Quiet hours:** nhập `HH:MM` theo múi giờ Home Assistant cho bắt đầu và kết thúc. Sự kiện `critical` vẫn gửi xuyên qua giờ im lặng.
+- **Duplicate cooldown:** bỏ qua thông báo trùng cùng loại, tài khoản và người gửi trong số giây đã đặt; `0` là tắt.
+- **Notification open URL:** dashboard hoặc trang web mở khi bấm **Mở**.
 
-Thông báo có nút **Đã xử lý**, **Gọi lại** khi sự kiện có số điện thoại hợp lệ, **Tắt chuông** khi có cuộc gọi/chuông và **Mở** dashboard nếu còn chỗ trong giới hạn 3 nút. Bấm **Đã xử lý** sẽ resolve báo động; **Gọi lại** mở trình gọi điện với số của SMS/OTP hoặc cuộc gọi SIM; **Tắt chuông** kết thúc cuộc gọi hoặc chuông đang chạy.
+Thông báo có tối đa 3 nút theo thứ tự ưu tiên: **Đã xử lý**, **Gọi lại**, **Mở chat**, **Tắt chuông**, **Mở**.
 
-Thông báo mặc định gửi cho báo động, OTP, SMS và cuộc gọi. Sự kiện SMS/OTP chỉ gửi khi có người gửi; báo động chỉ gửi khi còn hoạt động.
+- **Đã xử lý** resolve báo động hoặc xóa thông báo.
+- **Gọi lại** mở trình gọi điện với số của SMS/OTP hoặc cuộc gọi SIM; không dùng ID Telegram/Zalo và không tự gọi phía server.
+- **Mở chat** mở hội thoại Telegram (`https://t.me/...` hoặc `tg://user?id=...`) hoặc Zalo (`https://zalo.me/...`) khi sự kiện có username/ID hợp lệ.
+- **Tắt chuông** kết thúc cuộc gọi hoặc chuông đang chạy.
+- **Mở** mở `notify_url` đã cấu hình.
+
+Sự kiện SMS/OTP chỉ gửi khi có người gửi; báo động chỉ gửi khi còn hoạt động.
 
 ## Services
 

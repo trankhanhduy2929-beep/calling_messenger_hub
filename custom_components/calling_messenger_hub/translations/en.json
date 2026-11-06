@@ -12,7 +12,7 @@
         "data_description": {
           "url": "Example: http://local-calling-messenger-hub:3030 for a local add-on. Use the repository hostname for remote installs.",
           "token": "Bearer token used to call the add-on REST API; copy it from the add-on Settings.",
-          "scan_interval": "How often account and call status is refreshed."
+          "scan_interval": "Time between account and call state refreshes."
         }
       }
     },
@@ -31,14 +31,28 @@
         "title": "Calling Messenger Hub options",
         "data": {
           "scan_interval": "Update interval (seconds)",
-          "notify_service": "Notification service",
+          "notify_service": "Legacy notification service",
+          "notify_services": "Notification services",
+          "notify_critical_services": "Critical notification services",
           "notify_events": "Notification event types",
+          "notify_accounts": "Account filter",
+          "notify_severities": "Notification severity",
+          "notify_quiet_start": "Quiet hours start",
+          "notify_quiet_end": "Quiet hours end",
+          "notify_cooldown": "Duplicate cooldown (seconds)",
           "notify_url": "Notification open URL"
         },
         "data_description": {
-          "notify_service": "For example notify.mobile_app_phone. Pick a Home Assistant notify service.",
+          "notify_service": "Legacy single service; used only when Notification services is empty. For example notify.mobile_app_phone.",
+          "notify_services": "Comma or newline separated notify services. For example notify.mobile_app_phone, notify.mobile_app_tablet.",
+          "notify_critical_services": "When set, critical events go only to these services instead of the main list.",
           "notify_events": "Only send notifications for the selected event types.",
-          "notify_url": "Dashboard or web page opened by the Open action. The Call back action opens the dialer when the event contains a phone number."
+          "notify_accounts": "Only send for accounts matching ID, name, phone or service type; comma separated. Empty = all.",
+          "notify_severities": "Only send events with the selected severities; events without a severity count as Info.",
+          "notify_quiet_start": "HH:MM in the Home Assistant timezone. Set both start and end to enable quiet hours.",
+          "notify_quiet_end": "HH:MM in the Home Assistant timezone. Critical events still bypass quiet hours.",
+          "notify_cooldown": "Skip duplicate notifications for the same type, account and sender within this window. 0 = off.",
+          "notify_url": "Dashboard or web page opened by the Open action. Call back opens the dialer; Open chat opens a Telegram/Zalo conversation when available."
         }
       }
     }
